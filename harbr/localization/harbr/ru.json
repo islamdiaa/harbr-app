@@ -1,0 +1,15 @@
+{
+    "harbr.AnErrorHasOccurred": "Произошла ошибка",
+    "harbr.Cancel": "Отмена",
+    "harbr.ChangeProfiles": "Изменить профили",
+    "harbr.ComingSoon": "Скоро будет",
+    "harbr.Dashboard": "Панель управления",
+    "harbr.GoBack": "Назад",
+    "harbr.ModuleIsNotEnabled": "{} Не включено",
+    "harbr.Refresh": "Обновить",
+    "harbr.ReturnToDashboard": "Вернуться в панель управления",
+    "harbr.SearchTextBar": "Поиск…",
+    "harbr.Settings": "Настройки",
+    "harbr.TryAgain": "Попробуйте снова",
+    "harbr.Unknown": "Неизвестно"
+}

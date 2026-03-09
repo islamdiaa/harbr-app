@@ -1,0 +1,6 @@
+Package:Harbr
+Architecture:amd64
+Essential:no
+Priority:optional
+Maintainer:Harbr Support <hello@harbr.app>
+Description:Self-hosted software controller built using Flutter

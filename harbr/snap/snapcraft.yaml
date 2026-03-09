@@ -1,0 +1,31 @@
+name: harbr
+version: 11.0.0
+confinement: strict
+base: core22
+# Required but managed manually via Snapcraft dashboard
+summary: summary
+description: description
+slots:
+  dbus-harbr:
+    interface: dbus
+    bus: session
+    name: app.harbr.harbr
+apps:
+  harbr:
+    command: harbr
+    extensions:
+    - gnome
+    plugs:
+    - home
+    - network
+    slots:
+    - dbus-harbr
+parts:
+  zenity:
+    plugin: nil
+    stage-packages:
+    - zenity
+  harbr:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart

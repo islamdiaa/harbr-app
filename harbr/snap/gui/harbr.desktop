@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Harbr
+Comment=Self-hosted software controller built using Flutter
+Exec=harbr
+Icon=${SNAP}/meta/gui/harbr.png
+Terminal=false
+Type=Application
+Categories=Utilities;Entertainment;
