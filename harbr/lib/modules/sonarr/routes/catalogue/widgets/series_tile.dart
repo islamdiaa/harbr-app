@@ -42,7 +42,7 @@ class _State extends State<SonarrSeriesTile> {
       builder: (context, series, _) {
         switch (widget.type) {
           case _SonarrSeriesTileType.TILE:
-            return _buildBlockTile();
+            return _buildMediaRow();
           case _SonarrSeriesTileType.GRID:
             return _buildGridTile();
           default:
@@ -52,23 +52,87 @@ class _State extends State<SonarrSeriesTile> {
     );
   }
 
-  Widget _buildBlockTile() {
-    return HarbrBlock(
-      backgroundUrl: context.read<SonarrState>().getFanartURL(widget.series.id),
-      backgroundHeaders: context.read<SonarrState>().headers,
-      posterUrl: context.read<SonarrState>().getPosterURL(widget.series.id),
-      posterHeaders: context.read<SonarrState>().headers,
-      posterPlaceholderIcon: HarbrIcons.VIDEO_CAM,
+  Widget _buildMediaRow() {
+    return HarbrMediaRow(
+      key: ObjectKey(widget.series),
+      poster: HarbrPoster(
+        url: context.read<SonarrState>().getPosterURL(widget.series.id),
+        headers: context.read<SonarrState>().headers,
+        placeholderIcon: HarbrIcons.VIDEO_CAM,
+        size: PosterSize.lg,
+      ),
+      title: widget.series.title ?? '',
+      subtitle: _buildSubtitleText(),
+      status: _buildStatusBadge(),
+      metadata: _buildMetaChips(),
       disabled: !widget.series.monitored!,
-      title: widget.series.title,
-      body: [
-        _subtitle1(),
-        _subtitle2(),
-        _subtitle3(),
-      ],
       onTap: _onTap,
       onLongPress: _onLongPress,
     );
+  }
+
+  String _buildSubtitleText() {
+    final parts = <String>[];
+    parts.add(widget.series.harbrSeriesType);
+
+    final profile = widget.profile?.name;
+    if (profile != null) {
+      parts.add(profile);
+    } else {
+      parts.add(HarbrUI.TEXT_EMDASH);
+    }
+
+    final sorting = context.read<SonarrState>().seriesSortType;
+    if (sorting == SonarrSeriesSorting.DATE_ADDED) {
+      parts.add(widget.series.harbrDateAdded);
+    } else if (sorting == SonarrSeriesSorting.PREVIOUS_AIRING) {
+      parts.add(widget.series.harbrPreviousAiring());
+    } else {
+      parts.add(widget.series.harbrNextAiring());
+    }
+
+    return parts.join(' ${HarbrUI.TEXT_BULLET} ');
+  }
+
+  Widget _buildStatusBadge() {
+    final percentage = widget.series.harbrPercentageComplete;
+    if (percentage >= 100) {
+      return HarbrStatusBadge(
+        type: StatusType.downloaded,
+        label: widget.series.harbrEpisodeCount,
+      );
+    }
+    if (percentage > 0) {
+      return HarbrStatusBadge(
+        type: StatusType.queued,
+        label: widget.series.harbrEpisodeCount,
+      );
+    }
+    return HarbrStatusBadge(
+      type: StatusType.missing,
+      label: widget.series.harbrEpisodeCount,
+    );
+  }
+
+  List<Widget> _buildMetaChips() {
+    return [
+      HarbrMetaChip(
+        icon: Icons.tv,
+        label: widget.series.harbrNetwork,
+      ),
+      HarbrMetaChip(
+        icon: Icons.calendar_today,
+        label: widget.series.harbrYear,
+      ),
+      HarbrMetaChip(
+        icon: Icons.folder,
+        label: widget.series.harbrsonCount,
+      ),
+      HarbrMetaChip(
+        icon: Icons.storage,
+        label: widget.series.harbrSizeOnDisk,
+      ),
+    ];
   }
 
   Widget _buildGridTile() {
@@ -85,84 +149,6 @@ class _State extends State<SonarrSeriesTile> {
       disabled: !widget.series.monitored!,
       onTap: _onTap,
       onLongPress: _onLongPress,
-    );
-  }
-
-  TextSpan _buildChildTextSpan(String? text, SonarrSeriesSorting sorting) {
-    TextStyle? style;
-    if (context.read<SonarrState>().seriesSortType == sorting) {
-      style = const TextStyle(
-        color: HarbrColours.accent,
-        fontWeight: HarbrUI.FONT_WEIGHT_BOLD,
-        fontSize: HarbrUI.FONT_SIZE_H3,
-      );
-    }
-    return TextSpan(
-      text: text,
-      style: style,
-    );
-  }
-
-  TextSpan _subtitle1() {
-    return TextSpan(
-      children: [
-        _buildChildTextSpan(
-          widget.series.harbrEpisodeCount,
-          SonarrSeriesSorting.EPISODES,
-        ),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        TextSpan(text: widget.series.harbrsonCount),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        _buildChildTextSpan(
-          widget.series.harbrSizeOnDisk,
-          SonarrSeriesSorting.SIZE,
-        ),
-      ],
-    );
-  }
-
-  TextSpan _subtitle2() {
-    return TextSpan(
-      children: [
-        _buildChildTextSpan(
-          widget.series.harbrSeriesType,
-          SonarrSeriesSorting.TYPE,
-        ),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        _buildChildTextSpan(
-          widget.profile?.name ?? HarbrUI.TEXT_EMDASH,
-          SonarrSeriesSorting.QUALITY,
-        ),
-      ],
-    );
-  }
-
-  TextSpan _subtitle3() {
-    SonarrSeriesSorting _sorting = context.read<SonarrState>().seriesSortType;
-    return TextSpan(
-      children: [
-        _buildChildTextSpan(
-          widget.series.harbrNetwork,
-          SonarrSeriesSorting.NETWORK,
-        ),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        if (_sorting == SonarrSeriesSorting.DATE_ADDED)
-          _buildChildTextSpan(
-            widget.series.harbrDateAdded,
-            SonarrSeriesSorting.DATE_ADDED,
-          ),
-        if (_sorting == SonarrSeriesSorting.PREVIOUS_AIRING)
-          _buildChildTextSpan(
-            widget.series.harbrPreviousAiring(),
-            SonarrSeriesSorting.PREVIOUS_AIRING,
-          ),
-        if (_sorting != SonarrSeriesSorting.DATE_ADDED &&
-            _sorting != SonarrSeriesSorting.PREVIOUS_AIRING)
-          _buildChildTextSpan(
-            widget.series.harbrNextAiring(),
-            SonarrSeriesSorting.NEXT_AIRING,
-          ),
-      ],
     );
   }
 

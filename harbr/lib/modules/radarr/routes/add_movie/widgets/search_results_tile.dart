@@ -26,58 +26,70 @@ class RadarrAddMovieSearchResultTile extends StatefulWidget {
 class _State extends State<RadarrAddMovieSearchResultTile> {
   @override
   Widget build(BuildContext context) {
-    return HarbrBlock(
-      backgroundUrl: widget.movie.remotePoster,
-      posterUrl: widget.movie.remotePoster,
-      posterHeaders: context.watch<RadarrState>().headers,
-      posterPlaceholderIcon: HarbrIcons.VIDEO_CAM,
-      title: widget.movie.title,
-      titleColor: widget.isExcluded ? HarbrColours.red : Colors.white,
+    return HarbrMediaRow(
+      poster: HarbrPoster(
+        url: widget.movie.remotePoster,
+        headers: context.watch<RadarrState>().headers,
+        placeholderIcon: HarbrIcons.VIDEO_CAM,
+        size: PosterSize.lg,
+      ),
+      title: widget.movie.title ?? HarbrUI.TEXT_EMDASH,
+      subtitle: _buildSubtitle(),
+      status: _statusBadge(),
+      metadata: _metaChips(),
       disabled: widget.exists,
-      body: [_subtitle1()],
-      bottom: _subtitle2(),
-      bottomHeight: HarbrBlock.SUBTITLE_HEIGHT * 2,
       onTap: _onTap,
       onLongPress: _onLongPress,
     );
   }
 
-  TextSpan _subtitle1() {
-    return TextSpan(
-      children: [
-        TextSpan(text: widget.movie.harbrYear),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        TextSpan(text: widget.movie.harbrRuntime),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        TextSpan(text: widget.movie.harbrStudio),
-      ],
-    );
-  }
-
-  Widget _subtitle2() {
+  String _buildSubtitle() {
     String? summary;
     if (widget.movie.overview == null || widget.movie.overview!.isEmpty) {
       summary = 'radarr.NoSummaryIsAvailable'.tr();
     } else {
       summary = widget.movie.overview;
     }
-    return SizedBox(
-      height: HarbrBlock.SUBTITLE_HEIGHT * 2,
-      child: RichText(
-        text: TextSpan(
-          style: const TextStyle(
-            fontStyle: FontStyle.italic,
-            fontSize: HarbrUI.FONT_SIZE_H3,
-            color: HarbrColours.grey,
-          ),
-          children: [
-            HarbrTextSpan.extended(text: summary),
-          ],
-        ),
-        overflow: TextOverflow.ellipsis,
-        maxLines: 2,
+    return summary ?? '';
+  }
+
+  Widget? _statusBadge() {
+    if (widget.exists) {
+      return const HarbrStatusBadge(
+        type: StatusType.monitored,
+        label: 'In Library',
+      );
+    }
+    if (widget.isExcluded) {
+      return const HarbrStatusBadge(
+        type: StatusType.error,
+        label: 'Excluded',
+      );
+    }
+    return null;
+  }
+
+  List<Widget> _metaChips() {
+    return [
+      HarbrMetaChip(
+        icon: Icons.calendar_today_rounded,
+        label: widget.movie.harbrYear,
       ),
-    );
+      HarbrMetaChip(
+        icon: Icons.schedule_rounded,
+        label: widget.movie.harbrRuntime,
+      ),
+      HarbrMetaChip(
+        icon: Icons.movie_rounded,
+        label: widget.movie.harbrStudio,
+      ),
+      if (widget.movie.certification != null &&
+          widget.movie.certification!.isNotEmpty)
+        HarbrMetaChip(
+          icon: Icons.verified_rounded,
+          label: widget.movie.certification!,
+        ),
+    ];
   }
 
   Future<void> _onTap() async {

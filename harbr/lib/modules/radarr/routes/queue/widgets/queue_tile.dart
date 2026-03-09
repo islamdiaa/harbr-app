@@ -26,19 +26,22 @@ class RadarrQueueTile extends StatelessWidget {
           movie = snapshot.data!.firstWhereOrNull(
             (element) => element.id == record.movieId,
           );
-        return HarbrExpandableListTile(
-          title: record.title!,
-          collapsedSubtitles: [
-            _subtitle1(),
-            _subtitle2(),
-          ],
-          expandedHighlightedNodes: _highlightedNodes(),
-          expandedTableContent: _tableContent(movie),
-          expandedTableButtons: _tableButtons(context),
-          collapsedTrailing: HarbrIconButton(
+        return HarbrMediaRow(
+          poster: HarbrPoster(
+            url: movie?.remotePoster,
+            headers: context.read<RadarrState>().headers,
+            placeholderIcon: HarbrIcons.VIDEO_CAM,
+            size: PosterSize.lg,
+          ),
+          title: record.title ?? HarbrUI.TEXT_EMDASH,
+          subtitle: movie != null ? record.harbrMovieTitle(movie) : null,
+          status: _statusSection(),
+          metadata: _metaChips(),
+          trailing: HarbrIconButton(
             icon: record.harbrStatusIcon,
             color: record.harbrStatusColor,
           ),
+          onTap: () => _onTap(context, movie),
           onLongPress: () => RadarrRoutes.MOVIE.go(params: {
             'movie': record.movieId!.toString(),
           }),
@@ -47,40 +50,131 @@ class RadarrQueueTile extends StatelessWidget {
     );
   }
 
-  TextSpan _subtitle1() {
-    return TextSpan(text: record.harbrMovieTitle(movie!));
+  StatusType _mapStatusType() {
+    if (record.trackedDownloadStatus == RadarrTrackedDownloadStatus.ERROR)
+      return StatusType.error;
+    if (record.trackedDownloadStatus == RadarrTrackedDownloadStatus.WARNING)
+      return StatusType.error;
+    switch (record.status) {
+      case RadarrQueueRecordStatus.QUEUED:
+      case RadarrQueueRecordStatus.DOWNLOADING:
+      case RadarrQueueRecordStatus.PAUSED:
+      case RadarrQueueRecordStatus.DELAY:
+        return StatusType.queued;
+      case RadarrQueueRecordStatus.COMPLETED:
+        if (record.trackedDownloadState ==
+                RadarrTrackedDownloadState.IMPORTING ||
+            record.trackedDownloadState ==
+                RadarrTrackedDownloadState.IMPORT_PENDING)
+          return StatusType.importing;
+        return StatusType.downloaded;
+      case RadarrQueueRecordStatus.FAILED:
+      case RadarrQueueRecordStatus.WARNING:
+      case RadarrQueueRecordStatus.DOWNLOAD_CLIENT_UNAVAILABLE:
+        return StatusType.error;
+      default:
+        return StatusType.queued;
+    }
   }
 
-  TextSpan _subtitle2() {
-    return TextSpan(
+  Widget _statusSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        TextSpan(
-          text: record.harbrQuality,
-          style: const TextStyle(
-            color: HarbrColours.accent,
-            fontWeight: HarbrUI.FONT_WEIGHT_BOLD,
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            HarbrStatusBadge(
+              type: _mapStatusType(),
+              label: record.status?.readable ?? HarbrUI.TEXT_EMDASH,
+            ),
+            const SizedBox(width: HarbrTokens.xs),
+            HarbrMetaChip(
+              label: '${record.harbrPercentageComplete}%',
+            ),
+          ],
         ),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        TextSpan(text: record.timeLeft ?? HarbrUI.TEXT_EMDASH),
+        const SizedBox(height: 4.0),
+        HarbrProgressBar(
+          progress: record.harbrPercentageComplete / 100.0,
+          height: 3.0,
+        ),
       ],
     );
   }
 
-  List<HarbrTableContent> _tableContent(RadarrMovie? movie) {
-    if (movie == null) return [];
+  List<Widget> _metaChips() {
     return [
-      HarbrTableContent(
-          title: 'radarr.Movie'.tr(), body: record.harbrMovieTitle(movie)),
-      HarbrTableContent(
-          title: 'radarr.Languages'.tr(), body: record.harbrLanguage),
-      HarbrTableContent(title: 'Client', body: record.harbrDownloadClient),
-      HarbrTableContent(title: 'Indexer', body: record.harbrIndexer),
-      HarbrTableContent(
-          title: 'radarr.Size'.tr(), body: record.size!.toInt().asBytes()),
-      HarbrTableContent(
-          title: 'Time Left', body: record.timeLeft ?? HarbrUI.TEXT_EMDASH),
+      HarbrMetaChip(
+        icon: Icons.storage_rounded,
+        label: record.size != null
+            ? record.size!.toInt().asBytes()
+            : HarbrUI.TEXT_EMDASH,
+      ),
+      if ((record.downloadClient ?? '').isNotEmpty)
+        HarbrMetaChip(
+          icon: Icons.download_rounded,
+          label: record.downloadClient!,
+        ),
+      HarbrMetaChip(
+        icon: Icons.schedule_rounded,
+        label: record.timeLeft ?? HarbrUI.TEXT_EMDASH,
+      ),
     ];
+  }
+
+  void _onTap(BuildContext context, RadarrMovie? movie) {
+    HarbrBottomModalSheet().show(
+      builder: (_) => HarbrListViewModal(
+        children: [
+          HarbrHeader(text: record.title ?? HarbrUI.TEXT_EMDASH),
+          // Highlighted nodes
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: HarbrUI.DEFAULT_MARGIN_SIZE,
+              vertical: HarbrUI.DEFAULT_MARGIN_SIZE / 2,
+            ),
+            child: Wrap(
+              direction: Axis.horizontal,
+              spacing: HarbrUI.DEFAULT_MARGIN_SIZE / 2,
+              runSpacing: HarbrUI.DEFAULT_MARGIN_SIZE / 2,
+              children: _highlightedNodes(),
+            ),
+          ),
+          // Table content
+          ..._tableContent(movie).map((item) => Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: HarbrUI.DEFAULT_MARGIN_SIZE,
+                ),
+                child: item,
+              )),
+          // Buttons
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: HarbrUI.DEFAULT_MARGIN_SIZE / 2,
+            ),
+            child: Wrap(
+              children: List.generate(
+                _tableButtons(context).length,
+                (index) {
+                  final buttons = _tableButtons(context);
+                  int bCount = buttons.length;
+                  double widthFactor = 0.5;
+                  if (index == (bCount - 1) && bCount.isOdd) {
+                    widthFactor = 1;
+                  }
+                  return FractionallySizedBox(
+                    widthFactor: widthFactor,
+                    child: buttons[index],
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   List<HarbrHighlightedNode> _highlightedNodes() {
@@ -107,6 +201,22 @@ class RadarrQueueTile extends StatelessWidget {
         text: record.status?.readable ?? HarbrUI.TEXT_EMDASH,
         backgroundColor: HarbrColours.blueGrey,
       ),
+    ];
+  }
+
+  List<HarbrTableContent> _tableContent(RadarrMovie? movie) {
+    if (movie == null) return [];
+    return [
+      HarbrTableContent(
+          title: 'radarr.Movie'.tr(), body: record.harbrMovieTitle(movie)),
+      HarbrTableContent(
+          title: 'radarr.Languages'.tr(), body: record.harbrLanguage),
+      HarbrTableContent(title: 'Client', body: record.harbrDownloadClient),
+      HarbrTableContent(title: 'Indexer', body: record.harbrIndexer),
+      HarbrTableContent(
+          title: 'radarr.Size'.tr(), body: record.size!.toInt().asBytes()),
+      HarbrTableContent(
+          title: 'Time Left', body: record.timeLeft ?? HarbrUI.TEXT_EMDASH),
     ];
   }
 

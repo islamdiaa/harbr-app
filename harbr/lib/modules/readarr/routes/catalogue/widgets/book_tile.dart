@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:harbr/core.dart';
-import 'package:harbr/extensions/string/string.dart';
 import 'package:harbr/modules/readarr.dart';
 import 'package:harbr/router/routes/readarr.dart';
 
 class ReadarrCatalogueBookTile extends StatefulWidget {
-  static final itemExtent = HarbrBlock.calculateItemExtent(2);
-
   final ReadarrBook book;
   final Map<int, ReadarrAuthor>? authors;
 
@@ -23,58 +20,37 @@ class ReadarrCatalogueBookTile extends StatefulWidget {
 class _State extends State<ReadarrCatalogueBookTile> {
   @override
   Widget build(BuildContext context) {
-    return HarbrBlock(
-      posterUrl: context.read<ReadarrState>().getBookCoverURL(widget.book),
-      posterHeaders: context.read<ReadarrState>().headers,
-      posterPlaceholderIcon: Icons.book_rounded,
-      disabled: !(widget.book.monitored ?? true),
+    return HarbrMediaRow(
+      poster: HarbrPoster(
+        url: context.read<ReadarrState>().getBookCoverURL(widget.book),
+        headers: context.read<ReadarrState>().headers,
+        placeholderIcon: Icons.book_rounded,
+        size: PosterSize.lg,
+      ),
       title: widget.book.title ?? HarbrUI.TEXT_EMDASH,
-      body: [
-        _subtitle1(),
-        _subtitle2(),
+      subtitle: _getAuthorName(),
+      disabled: !(widget.book.monitored ?? true),
+      status: _statusBadge(),
+      metadata: [
+        HarbrStatusBadge(
+          type: widget.book.harbrIsMonitored
+              ? StatusType.monitored
+              : StatusType.unmonitored,
+        ),
       ],
       onTap: _onTap,
       onLongPress: _onLongPress,
     );
   }
 
-  TextSpan _subtitle1() {
-    String authorName = _getAuthorName();
-    return TextSpan(
-      children: [
-        TextSpan(text: authorName),
-      ],
-    );
-  }
-
-  TextSpan _subtitle2() {
-    return TextSpan(
-      children: [
-        TextSpan(
-          text: widget.book.harbrFileStatus,
-          style: TextStyle(
-            color: widget.book.harbrHasFile
-                ? HarbrColours.accent
-                : widget.book.harbrIsGrabbed
-                    ? HarbrColours.orange
-                    : HarbrColours.red,
-            fontWeight: HarbrUI.FONT_WEIGHT_BOLD,
-          ),
-        ),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        TextSpan(
-          text: widget.book.harbrIsMonitored
-              ? 'readarr.Monitored'.tr()
-              : 'readarr.Unmonitored'.tr(),
-          style: TextStyle(
-            color: widget.book.harbrIsMonitored
-                ? HarbrColours.accent
-                : HarbrColours.red,
-            fontWeight: HarbrUI.FONT_WEIGHT_BOLD,
-          ),
-        ),
-      ],
-    );
+  Widget _statusBadge() {
+    if (widget.book.harbrHasFile) {
+      return const HarbrStatusBadge(type: StatusType.downloaded);
+    }
+    if (widget.book.harbrIsGrabbed) {
+      return const HarbrStatusBadge(type: StatusType.queued);
+    }
+    return const HarbrStatusBadge(type: StatusType.missing);
   }
 
   String _getAuthorName() {

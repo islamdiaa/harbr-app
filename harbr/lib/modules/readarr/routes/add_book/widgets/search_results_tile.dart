@@ -17,22 +17,18 @@ class ReadarrAddBookSearchResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HarbrBlock(
-      posterUrl: context.read<ReadarrState>().getBookCoverURL(book),
-      posterHeaders: context.read<ReadarrState>().headers,
-      posterPlaceholderIcon: Icons.book_rounded,
-      disabled: exists,
+    return HarbrMediaRow(
+      poster: HarbrPoster(
+        url: context.read<ReadarrState>().getBookCoverURL(book),
+        headers: context.read<ReadarrState>().headers,
+        placeholderIcon: Icons.book_rounded,
+        size: PosterSize.lg,
+      ),
       title: book.title ?? HarbrUI.TEXT_EMDASH,
-      body: [
-        TextSpan(text: book.harbrAuthorTitle),
-        TextSpan(
-          text: exists ? 'readarr.AlreadyInLibrary'.tr() : book.harbrReleaseDate,
-          style: TextStyle(
-            color: exists ? HarbrColours.accent : null,
-            fontWeight: exists ? HarbrUI.FONT_WEIGHT_BOLD : null,
-          ),
-        ),
-      ],
+      subtitle: book.harbrAuthorTitle,
+      status: _statusBadge(),
+      metadata: _metaChips(),
+      disabled: exists,
       onTap: exists
           ? null
           : () {
@@ -47,5 +43,34 @@ class ReadarrAddBookSearchResultTile extends StatelessWidget {
               }
             },
     );
+  }
+
+  Widget? _statusBadge() {
+    if (exists) {
+      return const HarbrStatusBadge(
+        type: StatusType.monitored,
+        label: 'In Library',
+      );
+    }
+    return null;
+  }
+
+  List<Widget> _metaChips() {
+    return [
+      HarbrMetaChip(
+        icon: Icons.calendar_today_rounded,
+        label: book.harbrReleaseDate,
+      ),
+      if (book.pageCount != null && book.pageCount! > 0)
+        HarbrMetaChip(
+          icon: Icons.menu_book_rounded,
+          label: book.harbrPageCount,
+        ),
+      if (book.editions != null && book.editions!.isNotEmpty)
+        HarbrMetaChip(
+          icon: Icons.layers_rounded,
+          label: '${book.harbrEditionCount} editions',
+        ),
+    ];
   }
 }

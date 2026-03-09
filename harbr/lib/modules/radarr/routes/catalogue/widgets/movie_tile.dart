@@ -42,7 +42,7 @@ class _State extends State<RadarrCatalogueTile> {
       builder: (context, movies, _) {
         switch (widget.type) {
           case _RadarrCatalogueTileType.TILE:
-            return _buildBlockTile();
+            return _buildMediaRow();
           case _RadarrCatalogueTileType.GRID:
             return _buildGridTile();
           default:
@@ -52,25 +52,70 @@ class _State extends State<RadarrCatalogueTile> {
     );
   }
 
-  Widget _buildBlockTile() {
-    return HarbrBlock(
+  Widget _buildMediaRow() {
+    return HarbrMediaRow(
       key: ObjectKey(widget.movie),
-      backgroundUrl: context.read<RadarrState>().getFanartURL(widget.movie.id),
-      posterUrl: context.read<RadarrState>().getPosterURL(widget.movie.id),
-      posterHeaders: context.read<RadarrState>().headers,
-      backgroundHeaders: context.read<RadarrState>().headers,
-      posterPlaceholderIcon: HarbrIcons.VIDEO_CAM,
+      poster: HarbrPoster(
+        url: context.read<RadarrState>().getPosterURL(widget.movie.id),
+        headers: context.read<RadarrState>().headers,
+        placeholderIcon: HarbrIcons.VIDEO_CAM,
+        size: PosterSize.lg,
+      ),
+      title: widget.movie.title ?? '',
+      subtitle: _buildSubtitleText(),
+      status: _buildStatusBadge(),
+      metadata: _buildMetaChips(),
       disabled: !widget.movie.monitored!,
-      title: widget.movie.title,
-      body: [
-        _subtitle1(),
-        _subtitle2(),
-      ],
-      posterIsSquare: false,
-      bottom: _subtitle3(),
       onTap: _onTap,
       onLongPress: _onLongPress,
     );
+  }
+
+  String _buildSubtitleText() {
+    final parts = <String>[];
+    final profile = widget.profile?.name;
+    if (profile != null) parts.add(profile);
+    parts.add(widget.movie.harbrMinimumAvailability);
+
+    final sorting = context.read<RadarrState>().moviesSortType;
+    if (sorting == RadarrMoviesSorting.PHYSICAL_RELEASE) {
+      parts.add(widget.movie.harbrPhysicalReleaseDate());
+    } else if (sorting == RadarrMoviesSorting.DIGITAL_RELEASE) {
+      parts.add(widget.movie.harbrDigitalReleaseDate());
+    } else if (sorting == RadarrMoviesSorting.IN_CINEMAS) {
+      parts.add(widget.movie.harbrInCinemasOn());
+    } else {
+      parts.add(widget.movie.harbrDateAdded());
+    }
+
+    return parts.join(' ${HarbrUI.TEXT_BULLET} ');
+  }
+
+  Widget _buildStatusBadge() {
+    if (widget.movie.hasFile!) {
+      return HarbrStatusBadge(
+        type: StatusType.downloaded,
+        label: widget.movie.harbrFileSize,
+      );
+    }
+    return const HarbrStatusBadge(type: StatusType.missing);
+  }
+
+  List<Widget> _buildMetaChips() {
+    return [
+      HarbrMetaChip(
+        icon: Icons.calendar_today,
+        label: widget.movie.harbrYear,
+      ),
+      HarbrMetaChip(
+        icon: Icons.schedule,
+        label: widget.movie.harbrRuntime,
+      ),
+      HarbrMetaChip(
+        icon: Icons.business,
+        label: widget.movie.harbrStudio,
+      ),
+    ];
   }
 
   Widget _buildGridTile() {
@@ -87,119 +132,6 @@ class _State extends State<RadarrCatalogueTile> {
       disabled: !widget.movie.monitored!,
       onTap: _onTap,
       onLongPress: _onLongPress,
-    );
-  }
-
-  TextSpan _buildChildTextSpan(String? text, RadarrMoviesSorting sorting) {
-    TextStyle? style;
-    if (context.read<RadarrState>().moviesSortType == sorting)
-      style = const TextStyle(
-        color: HarbrColours.accent,
-        fontWeight: HarbrUI.FONT_WEIGHT_BOLD,
-      );
-    return TextSpan(
-      text: text,
-      style: style,
-    );
-  }
-
-  TextSpan _subtitle1() {
-    return TextSpan(
-      children: [
-        _buildChildTextSpan(widget.movie.harbrYear, RadarrMoviesSorting.YEAR),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        _buildChildTextSpan(
-            widget.movie.harbrRuntime, RadarrMoviesSorting.RUNTIME),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        _buildChildTextSpan(
-            widget.movie.harbrStudio, RadarrMoviesSorting.STUDIO),
-      ],
-    );
-  }
-
-  TextSpan _subtitle2() {
-    return TextSpan(
-      children: [
-        _buildChildTextSpan(widget.profile?.name ?? HarbrUI.TEXT_EMDASH,
-            RadarrMoviesSorting.QUALITY_PROFILE),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        _buildChildTextSpan(widget.movie.harbrMinimumAvailability,
-            RadarrMoviesSorting.MIN_AVAILABILITY),
-        TextSpan(text: HarbrUI.TEXT_BULLET.pad()),
-        if (context.read<RadarrState>().moviesSortType !=
-                RadarrMoviesSorting.IN_CINEMAS &&
-            context.read<RadarrState>().moviesSortType !=
-                RadarrMoviesSorting.DIGITAL_RELEASE &&
-            context.read<RadarrState>().moviesSortType !=
-                RadarrMoviesSorting.PHYSICAL_RELEASE)
-          _buildChildTextSpan(
-            widget.movie.harbrDateAdded(),
-            RadarrMoviesSorting.DATE_ADDED,
-          ),
-        if (context.read<RadarrState>().moviesSortType ==
-            RadarrMoviesSorting.PHYSICAL_RELEASE)
-          _buildChildTextSpan(widget.movie.harbrPhysicalReleaseDate(),
-              RadarrMoviesSorting.PHYSICAL_RELEASE),
-        if (context.read<RadarrState>().moviesSortType ==
-            RadarrMoviesSorting.DIGITAL_RELEASE)
-          _buildChildTextSpan(widget.movie.harbrDigitalReleaseDate(),
-              RadarrMoviesSorting.DIGITAL_RELEASE),
-        if (context.read<RadarrState>().moviesSortType ==
-            RadarrMoviesSorting.IN_CINEMAS)
-          _buildChildTextSpan(
-            widget.movie.harbrInCinemasOn(),
-            RadarrMoviesSorting.IN_CINEMAS,
-          ),
-      ],
-    );
-  }
-
-  Widget _buildReleaseIcon(IconData icon, Color color, bool highlight) {
-    return Padding(
-      child: Container(
-        child: Icon(
-          icon,
-          size: HarbrUI.FONT_SIZE_H2,
-          color: highlight ? color : HarbrColours.grey.disabled(),
-        ),
-        width: HarbrBlock.SUBTITLE_HEIGHT,
-        height: HarbrBlock.SUBTITLE_HEIGHT,
-        alignment: Alignment.centerLeft,
-      ),
-      padding: const EdgeInsets.only(right: HarbrUI.DEFAULT_MARGIN_SIZE / 4),
-    );
-  }
-
-  Widget _subtitle3() {
-    return SizedBox(
-      height: HarbrBlock.SUBTITLE_HEIGHT,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildReleaseIcon(
-            Icons.videocam_rounded,
-            HarbrColours.orange,
-            widget.movie.harbrIsInCinemas,
-          ),
-          _buildReleaseIcon(
-            Icons.album_rounded,
-            HarbrColours.blue,
-            widget.movie.harbrIsReleased,
-          ),
-          _buildReleaseIcon(
-            Icons.check_circle_rounded,
-            HarbrColours.accent,
-            widget.movie.hasFile!,
-          ),
-          Container(
-            height: HarbrBlock.SUBTITLE_HEIGHT,
-            child: widget.movie.hasFile!
-                ? widget.movie.harbrHasFileTextObject()
-                : widget.movie.harbrNextReleaseTextObject(),
-            alignment: Alignment.center,
-          ),
-        ],
-      ),
     );
   }
 

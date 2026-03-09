@@ -41,6 +41,21 @@ export 'ui/text_span.dart';
 export 'ui/text_style.dart';
 export 'ui/text.dart';
 export 'ui/theme.dart';
+export 'ui/theme_extension.dart';
+export 'ui/tokens.dart';
+export 'ui/harbr_colors.dart';
+export 'ui/status_badge.dart';
+export 'ui/meta_chip.dart';
+export 'ui/empty_state.dart';
+export 'ui/progress_bar.dart';
+export 'ui/surface.dart';
+export 'ui/poster.dart';
+export 'ui/media_row.dart';
+export 'ui/harbr_tab_bar.dart';
+export 'ui/harbr_nav_rail.dart';
+export 'ui/harbr_app_shell.dart';
+export 'ui/responsive_layout.dart';
+export 'ui/responsive_grid.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class HarbrUI {

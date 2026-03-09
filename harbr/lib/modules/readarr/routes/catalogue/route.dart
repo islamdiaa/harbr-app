@@ -187,7 +187,6 @@ class _State extends State<ReadarrCatalogueRoute>
         return HarbrListViewBuilder(
           controller: ReadarrNavigationBar.scrollControllers[0],
           itemCount: _filtered.length,
-          itemExtent: ReadarrCatalogueBookTile.itemExtent,
           itemBuilder: (context, index) => ReadarrCatalogueBookTile(
             book: _filtered[index],
             authors: authors,
