@@ -198,8 +198,17 @@ class _State extends State<CalendarPage>
 
           if (snapshot.connectionState == ConnectionState.done &&
               snapshot.hasData) {
-            final events = snapshot.data!;
+            final allEvents = snapshot.data!;
             final harbr = context.harbr;
+
+            // Filter events to the selected week
+            final now = DateTime.now();
+            final weekStart = _weekStart(now).add(Duration(days: _weekOffset * 7));
+            final weekEnd = weekStart.add(const Duration(days: 7));
+            final events = Map<DateTime, List<CalendarData>>.fromEntries(
+              allEvents.entries.where((e) =>
+                !e.key.isBefore(weekStart) && e.key.isBefore(weekEnd)),
+            );
             return Column(
               children: [
                 // SafeArea top padding (no appbar)

@@ -236,7 +236,7 @@ class _MembershipCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: harbr.accent.withOpacity(0.2),
+              color: harbr.accent.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -334,7 +334,7 @@ class _SettingsMenuItem extends StatelessWidget {
             ),
             Icon(
               trailing ?? Icons.chevron_right_rounded,
-              color: harbr.onSurfaceDim.withOpacity(0.5),
+              color: harbr.onSurfaceDim.withValues(alpha: 0.5),
               size: HarbrTokens.iconSm,
             ),
           ],

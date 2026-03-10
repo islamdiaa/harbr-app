@@ -108,7 +108,8 @@ class HarbrUI {
   static const double OPACITY_SPLASH = 0.25;
   static const double OPACITY_SELECTED = 0.35;
   static const double ELEVATION = 0.0;
-  static const FontWeight FONT_WEIGHT_BOLD = FontWeight.w500;
+  static const FontWeight FONT_WEIGHT_BOLD = FontWeight.w600;
+  static const FontWeight FONT_WEIGHT_HEADING = FontWeight.w500;
 
   // <--> Margins
   static const double DEFAULT_MARGIN_SIZE = 12.0;

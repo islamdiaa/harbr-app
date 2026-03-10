@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:harbr/widgets/ui/harbr_colors.dart';
 import 'package:harbr/widgets/ui/harbr_nav_rail.dart';
 import 'package:harbr/widgets/ui/theme_extension.dart';
 import 'package:harbr/widgets/ui/tokens.dart';
@@ -34,11 +35,11 @@ class HarbrPillNavBar extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 24.0, sigmaY: 24.0),
         child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xF21E1830), // #1e1830 at 95% opacity
-            border: const Border(
+          decoration: const BoxDecoration(
+            color: HarbrColors.navBarBg,
+            border: Border(
               top: BorderSide(
-                color: Color(0x0DFFFFFF), // white at 5%
+                color: HarbrColors.navBarBorder,
                 width: 1,
               ),
             ),

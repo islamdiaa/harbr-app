@@ -40,6 +40,10 @@ abstract final class HarbrColors {
   static const Color onSurfaceDim = Color(0xFF9590A8);
   static const Color onSurfaceFaint = Color(0xFF5D5570);
 
+  // ── Nav bar background ─────────────────────────────────────────
+  static const Color navBarBg = Color(0xF21E1830); // #1E1830 at 95%
+  static const Color navBarBorder = Color(0x0DFFFFFF); // white at 5%
+
   // ── Borders (transparent white) ─────────────────────────────────
   static const Color border = Color(0x14FFFFFF); // rgba(255,255,255,0.08)
   static const Color borderHigh = Color(0x29FFFFFF); // rgba(255,255,255,0.16)
