@@ -8,7 +8,10 @@ import 'package:harbr/widgets/ui/tokens.dart';
 /// [HarbrThemeData], giving a clear visual hierarchy without relying
 /// on drop shadows.
 enum SurfaceLevel {
-  /// Page background — the darkest surface.
+  /// Deepest surface — modals, overlays, bottom sheets.
+  deep,
+
+  /// Page background — the darkest standard surface.
   canvas,
 
   /// Default card / container background.
@@ -72,6 +75,8 @@ class HarbrSurface extends StatelessWidget {
   /// current theme's [HarbrThemeData].
   Color _colorForLevel(HarbrThemeData harbr) {
     switch (level) {
+      case SurfaceLevel.deep:
+        return harbr.deepSurface;
       case SurfaceLevel.canvas:
         return harbr.canvas;
       case SurfaceLevel.base:

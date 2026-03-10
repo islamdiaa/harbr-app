@@ -48,6 +48,8 @@ enum HarbrModule {
   OVERSEERR(MODULE_OVERSEERR_KEY),
   @HiveField(4)
   RADARR(MODULE_RADARR_KEY),
+  @HiveField(12)
+  READARR(MODULE_READARR_KEY),
   @HiveField(5)
   SABNZBD(MODULE_SABNZBD_KEY),
   @HiveField(6)
@@ -59,9 +61,7 @@ enum HarbrModule {
   @HiveField(9)
   TAUTULLI(MODULE_TAUTULLI_KEY),
   @HiveField(10)
-  WAKE_ON_LAN(MODULE_WAKE_ON_LAN_KEY),
-  @HiveField(12)
-  READARR(MODULE_READARR_KEY);
+  WAKE_ON_LAN(MODULE_WAKE_ON_LAN_KEY);
 
   final String key;
   const HarbrModule(this.key);

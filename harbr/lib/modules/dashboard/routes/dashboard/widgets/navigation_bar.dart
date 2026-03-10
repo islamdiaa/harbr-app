@@ -10,13 +10,17 @@ class HomeNavigationBar extends StatelessWidget {
   );
 
   static final List<String> titles = [
+    'Home',
     'dashboard.Modules'.tr(),
     'dashboard.Calendar'.tr(),
+    'Activities',
   ];
 
   static const List<IconData> icons = [
-    Icons.workspaces_rounded,
+    Icons.home_rounded,
+    Icons.video_library_rounded,
     Icons.calendar_today_rounded,
+    Icons.notifications_rounded,
   ];
 
   const HomeNavigationBar({

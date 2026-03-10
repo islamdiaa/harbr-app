@@ -45,7 +45,7 @@ class HarbrTheme {
       primaryColor: HarbrColors.surface1,
       cardColor: HarbrColors.surface1,
       dialogTheme: const DialogThemeData(
-        backgroundColor: HarbrColors.surface2,
+        backgroundColor: HarbrColors.deepSurface,
         shape: RoundedRectangleBorder(
           borderRadius: HarbrTokens.borderRadiusLg,
         ),
@@ -148,7 +148,7 @@ class HarbrTheme {
       primaryColor: Colors.black,
       cardColor: Colors.black,
       dialogTheme: DialogThemeData(
-        backgroundColor: HarbrColors.amoledSurface1,
+        backgroundColor: HarbrColors.amoledDeepSurface,
         shape: RoundedRectangleBorder(
           borderRadius: HarbrTokens.borderRadiusLg,
           side: useBorders

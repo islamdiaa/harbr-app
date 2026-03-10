@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:harbr/core.dart';
-import 'package:harbr/extensions/string/string.dart';
 import 'package:harbr/modules/radarr.dart';
 import 'package:harbr/router/routes/radarr.dart';
 
@@ -10,7 +9,7 @@ enum _RadarrCatalogueTileType {
 }
 
 class RadarrCatalogueTile extends StatefulWidget {
-  static final itemExtent = HarbrBlock.calculateItemExtent(2, hasBottom: true);
+  static const double itemExtent = 160.0;
 
   final RadarrMovie movie;
   final RadarrQualityProfile? profile;
@@ -42,7 +41,7 @@ class _State extends State<RadarrCatalogueTile> {
       builder: (context, movies, _) {
         switch (widget.type) {
           case _RadarrCatalogueTileType.TILE:
-            return _buildMediaRow();
+            return _buildCard();
           case _RadarrCatalogueTileType.GRID:
             return _buildGridTile();
           default:
@@ -52,41 +51,96 @@ class _State extends State<RadarrCatalogueTile> {
     );
   }
 
-  Widget _buildMediaRow() {
-    return HarbrMediaRow(
-      key: ObjectKey(widget.movie),
-      poster: HarbrPoster(
-        url: context.read<RadarrState>().getPosterURL(widget.movie.id),
-        headers: context.read<RadarrState>().headers,
-        placeholderIcon: HarbrIcons.VIDEO_CAM,
-        size: PosterSize.lg,
+  Widget _buildCard() {
+    Widget content = Opacity(
+      opacity: widget.movie.monitored! ? 1.0 : HarbrTokens.opacityDisabled,
+      child: Row(
+        children: [
+          HarbrPoster(
+            url: context.read<RadarrState>().getPosterURL(widget.movie.id),
+            headers: context.read<RadarrState>().headers,
+            placeholderIcon: HarbrIcons.VIDEO_CAM,
+            size: PosterSize.xl,
+            overlayWidgets: [
+              Positioned(
+                bottom: 4,
+                left: 4,
+                child: _buildStatusBadge(),
+              ),
+            ],
+          ),
+          const SizedBox(width: HarbrTokens.md),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.movie.title ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: context.harbr.onSurface,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _buildSubtitleText(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: context.harbr.onSurfaceDim,
+                    fontSize: 13.0,
+                  ),
+                ),
+                if (widget.movie.overview?.isNotEmpty ?? false) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.movie.overview!,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: context.harbr.onSurfaceDim,
+                      fontSize: 12.0,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: HarbrTokens.xs,
+                  runSpacing: HarbrTokens.xs,
+                  children: _buildMetaChips(),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      title: widget.movie.title ?? '',
-      subtitle: _buildSubtitleText(),
-      status: _buildStatusBadge(),
-      metadata: _buildMetaChips(),
-      disabled: !widget.movie.monitored!,
+    );
+
+    return HarbrSurface(
+      showBorder: true,
+      borderRadius: HarbrTokens.borderRadiusXxl,
+      margin: HarbrTokens.paddingCard,
+      padding: HarbrTokens.paddingMd,
       onTap: _onTap,
       onLongPress: _onLongPress,
+      child: content,
     );
   }
 
   String _buildSubtitleText() {
     final parts = <String>[];
+    if (widget.movie.year != null && widget.movie.year != 0) {
+      parts.add(widget.movie.year.toString());
+    }
+    parts.add(widget.movie.harbrRuntime);
+
     final profile = widget.profile?.name;
     if (profile != null) parts.add(profile);
-    parts.add(widget.movie.harbrMinimumAvailability);
-
-    final sorting = context.read<RadarrState>().moviesSortType;
-    if (sorting == RadarrMoviesSorting.PHYSICAL_RELEASE) {
-      parts.add(widget.movie.harbrPhysicalReleaseDate());
-    } else if (sorting == RadarrMoviesSorting.DIGITAL_RELEASE) {
-      parts.add(widget.movie.harbrDigitalReleaseDate());
-    } else if (sorting == RadarrMoviesSorting.IN_CINEMAS) {
-      parts.add(widget.movie.harbrInCinemasOn());
-    } else {
-      parts.add(widget.movie.harbrDateAdded());
-    }
 
     return parts.join(' ${HarbrUI.TEXT_BULLET} ');
   }

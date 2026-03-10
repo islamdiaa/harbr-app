@@ -20,6 +20,9 @@ class HarbrMediaRow extends StatelessWidget {
   /// Secondary text — rendered dimmed and single-line with ellipsis overflow.
   final String? subtitle;
 
+  /// Optional multi-line description (3-line clamp).
+  final String? description;
+
   /// A widget (typically a status badge) shown below the subtitle.
   final Widget? status;
 
@@ -46,6 +49,7 @@ class HarbrMediaRow extends StatelessWidget {
     required this.title,
     this.poster,
     this.subtitle,
+    this.description,
     this.status,
     this.metadata,
     this.trailing,
@@ -88,6 +92,20 @@ class HarbrMediaRow extends StatelessWidget {
                   style: TextStyle(
                     color: harbr.onSurfaceDim,
                     fontSize: 13.0,
+                  ),
+                ),
+              ],
+              // Description
+              if (description != null) ...[
+                const SizedBox(height: 4.0),
+                Text(
+                  description!,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: harbr.onSurfaceDim,
+                    fontSize: 12.0,
+                    height: 1.4,
                   ),
                 ),
               ],

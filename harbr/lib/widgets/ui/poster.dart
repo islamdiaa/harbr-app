@@ -19,6 +19,9 @@ enum PosterSize {
 
   /// 96 logical pixels tall.
   xl,
+
+  /// 192 logical pixels tall — hero detail screens.
+  hero,
 }
 
 /// A standalone poster image widget with size presets and a built-in
@@ -46,6 +49,9 @@ class HarbrPoster extends StatelessWidget {
   /// Custom border radius. Defaults to [HarbrTokens.borderRadiusSm].
   final BorderRadius? borderRadius;
 
+  /// Optional widgets overlaid on top of the poster (e.g. status pills).
+  final List<Widget>? overlayWidgets;
+
   const HarbrPoster({
     super.key,
     this.url,
@@ -54,6 +60,7 @@ class HarbrPoster extends StatelessWidget {
     this.size = PosterSize.md,
     this.isSquare = false,
     this.borderRadius,
+    this.overlayWidgets,
   });
 
   /// Maps [PosterSize] to its logical pixel height.
@@ -67,6 +74,8 @@ class HarbrPoster extends StatelessWidget {
         return 72.0;
       case PosterSize.xl:
         return 96.0;
+      case PosterSize.hero:
+        return 192.0;
     }
   }
 
@@ -115,6 +124,8 @@ class HarbrPoster extends StatelessWidget {
                 height: _height,
                 width: _width,
               ),
+            // Overlay widgets (e.g. status pills, quality tags).
+            if (overlayWidgets != null) ...overlayWidgets!,
           ],
         ),
       ),

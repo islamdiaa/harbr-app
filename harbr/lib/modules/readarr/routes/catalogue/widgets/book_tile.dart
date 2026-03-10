@@ -20,26 +20,100 @@ class ReadarrCatalogueBookTile extends StatefulWidget {
 class _State extends State<ReadarrCatalogueBookTile> {
   @override
   Widget build(BuildContext context) {
-    return HarbrMediaRow(
-      poster: HarbrPoster(
-        url: context.read<ReadarrState>().getBookCoverURL(widget.book),
-        headers: context.read<ReadarrState>().headers,
-        placeholderIcon: Icons.book_rounded,
-        size: PosterSize.lg,
+    Widget content = Opacity(
+      opacity: (widget.book.monitored ?? true)
+          ? 1.0
+          : HarbrTokens.opacityDisabled,
+      child: Row(
+        children: [
+          HarbrPoster(
+            url: context.read<ReadarrState>().getBookCoverURL(widget.book),
+            headers: context.read<ReadarrState>().headers,
+            placeholderIcon: Icons.book_rounded,
+            size: PosterSize.xl,
+            overlayWidgets: [
+              Positioned(
+                bottom: 4,
+                left: 4,
+                child: _statusBadge(),
+              ),
+            ],
+          ),
+          const SizedBox(width: HarbrTokens.md),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.book.title ?? HarbrUI.TEXT_EMDASH,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: context.harbr.onSurface,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _getAuthorName(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: context.harbr.onSurfaceDim,
+                    fontSize: 13.0,
+                  ),
+                ),
+                if (widget.book.overview?.isNotEmpty ?? false) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.book.overview!,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: context.harbr.onSurfaceDim,
+                      fontSize: 12.0,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: HarbrTokens.xs,
+                  runSpacing: HarbrTokens.xs,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    HarbrStatusBadge(
+                      type: widget.book.harbrIsMonitored
+                          ? StatusType.monitored
+                          : StatusType.unmonitored,
+                    ),
+                    HarbrMetaChip(
+                      icon: Icons.menu_book_rounded,
+                      label: widget.book.harbrPageCount,
+                    ),
+                    HarbrMetaChip(
+                      icon: Icons.calendar_today,
+                      label: widget.book.harbrReleaseDate,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      title: widget.book.title ?? HarbrUI.TEXT_EMDASH,
-      subtitle: _getAuthorName(),
-      disabled: !(widget.book.monitored ?? true),
-      status: _statusBadge(),
-      metadata: [
-        HarbrStatusBadge(
-          type: widget.book.harbrIsMonitored
-              ? StatusType.monitored
-              : StatusType.unmonitored,
-        ),
-      ],
+    );
+
+    return HarbrSurface(
+      showBorder: true,
+      borderRadius: HarbrTokens.borderRadiusXxl,
+      margin: HarbrTokens.paddingCard,
+      padding: HarbrTokens.paddingMd,
       onTap: _onTap,
       onLongPress: _onLongPress,
+      child: content,
     );
   }
 

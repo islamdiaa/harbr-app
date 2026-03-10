@@ -55,7 +55,7 @@ class _State extends State<ReadarrCatalogueRoute>
       child: ReadarrAuthorSearchBar(
         scrollController: ReadarrNavigationBar.scrollControllers[0],
       ),
-      height: HarbrTextInputBar.defaultAppBarHeight,
+      height: 100,
     );
   }
 

@@ -6,22 +6,24 @@ import 'package:flutter/material.dart';
 /// for both Midnight (default) and AMOLED themes.
 abstract final class HarbrColors {
   // ── Surface layers (Midnight theme) ────────────────────────────
-  static const Color canvas = Color(0xFF0D1117);
-  static const Color surface0 = Color(0xFF161B22);
-  static const Color surface1 = Color(0xFF1C2128);
-  static const Color surface2 = Color(0xFF242A33);
-  static const Color surface3 = Color(0xFF2D333B);
+  static const Color canvas = Color(0xFF2D2540);
+  static const Color surface0 = Color(0xFF3D3550);
+  static const Color surface1 = Color(0xFF3D3550);
+  static const Color surface2 = Color(0xFF4D4560);
+  static const Color surface3 = Color(0xFF5D5570);
+  static const Color deepSurface = Color(0xFF1A1625);
 
   // ── Surface layers (AMOLED theme) ──────────────────────────────
   static const Color amoledCanvas = Color(0xFF000000);
-  static const Color amoledSurface0 = Color(0xFF000000);
-  static const Color amoledSurface1 = Color(0xFF0D1117);
-  static const Color amoledSurface2 = Color(0xFF161B22);
-  static const Color amoledSurface3 = Color(0xFF1C2128);
+  static const Color amoledSurface0 = Color(0xFF0A0812);
+  static const Color amoledSurface1 = Color(0xFF1A1625);
+  static const Color amoledSurface2 = Color(0xFF2D2540);
+  static const Color amoledSurface3 = Color(0xFF3D3550);
+  static const Color amoledDeepSurface = Color(0xFF000000);
 
   // ── Accent ─────────────────────────────────────────────────────
-  static const Color accent = Color(0xFF00BCD4);
-  static const Color accentDim = Color(0x2600BCD4); // 15%
+  static const Color accent = Color(0xFF8B7FB8);
+  static const Color accentDim = Color(0x268B7FB8); // 15%
 
   // ── Semantic status ────────────────────────────────────────────
   static const Color success = Color(0xFF3FB950);
@@ -35,9 +37,9 @@ abstract final class HarbrColors {
   static const Color onSurfaceFaint = Color(0xFF484F58);
 
   // ── Borders ────────────────────────────────────────────────────
-  static const Color border = Color(0x0FFFFFFF); // 6%
-  static const Color borderHigh = Color(0x1AFFFFFF); // 10%
-  static const Color borderAccent = Color(0x3300BCD4); // 20%
+  static const Color border = Color(0xFF4D4560); // opaque purple-tinted
+  static const Color borderHigh = Color(0xFF5D5570);
+  static const Color borderAccent = Color(0x338B7FB8); // 20%
 
   // ── Legacy compat (maps to old HarbrColours) ───────────────────
   static const Color blue = Color(0xFF00A8E8);

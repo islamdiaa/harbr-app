@@ -10,6 +10,7 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
   final Color surface1;
   final Color surface2;
   final Color surface3;
+  final Color deepSurface;
 
   // Accent
   final Color accent;
@@ -36,6 +37,7 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
     required this.surface1,
     required this.surface2,
     required this.surface3,
+    required this.deepSurface,
     required this.accent,
     required this.accentDim,
     required this.success,
@@ -56,6 +58,7 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
     surface1: HarbrColors.surface1,
     surface2: HarbrColors.surface2,
     surface3: HarbrColors.surface3,
+    deepSurface: HarbrColors.deepSurface,
     accent: HarbrColors.accent,
     accentDim: HarbrColors.accentDim,
     success: HarbrColors.success,
@@ -76,6 +79,7 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
     surface1: HarbrColors.amoledSurface1,
     surface2: HarbrColors.amoledSurface2,
     surface3: HarbrColors.amoledSurface3,
+    deepSurface: HarbrColors.amoledDeepSurface,
     accent: HarbrColors.accent,
     accentDim: HarbrColors.accentDim,
     success: HarbrColors.success,
@@ -96,6 +100,7 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
     Color? surface1,
     Color? surface2,
     Color? surface3,
+    Color? deepSurface,
     Color? accent,
     Color? accentDim,
     Color? success,
@@ -114,6 +119,7 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
       surface1: surface1 ?? this.surface1,
       surface2: surface2 ?? this.surface2,
       surface3: surface3 ?? this.surface3,
+      deepSurface: deepSurface ?? this.deepSurface,
       accent: accent ?? this.accent,
       accentDim: accentDim ?? this.accentDim,
       success: success ?? this.success,
@@ -137,6 +143,7 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
       surface1: Color.lerp(surface1, other.surface1, t)!,
       surface2: Color.lerp(surface2, other.surface2, t)!,
       surface3: Color.lerp(surface3, other.surface3, t)!,
+      deepSurface: Color.lerp(deepSurface, other.deepSurface, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
       accentDim: Color.lerp(accentDim, other.accentDim, t)!,
       success: Color.lerp(success, other.success, t)!,

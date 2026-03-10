@@ -11,6 +11,9 @@ class HarbrEmptyState extends StatelessWidget {
   final String title;
   final String? subtitle;
 
+  /// An optional hint displayed below the subtitle in a lighter style.
+  final String? hint;
+
   /// An optional action widget, such as a button, displayed below the text.
   final Widget? action;
 
@@ -19,6 +22,7 @@ class HarbrEmptyState extends StatelessWidget {
     required this.icon,
     required this.title,
     this.subtitle,
+    this.hint,
     this.action,
   });
 
@@ -32,10 +36,18 @@ class HarbrEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 48,
-              color: harbr.onSurfaceFaint,
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: harbr.accent.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 32,
+                color: harbr.onSurfaceFaint,
+              ),
             ),
             const SizedBox(height: HarbrTokens.lg),
             Text(
@@ -53,6 +65,17 @@ class HarbrEmptyState extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   color: harbr.onSurfaceDim,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+            if (hint != null) ...[
+              const SizedBox(height: HarbrTokens.xs),
+              Text(
+                hint!,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: harbr.onSurfaceFaint,
                 ),
                 textAlign: TextAlign.center,
               ),

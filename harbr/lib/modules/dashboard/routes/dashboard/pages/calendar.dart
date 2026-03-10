@@ -19,6 +19,8 @@ class CalendarPage extends StatefulWidget {
 class _State extends State<CalendarPage>
     with AutomaticKeepAliveClientMixin, HarbrLoadCallbackMixin {
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   bool get wantKeepAlive => true;
@@ -27,6 +29,19 @@ class _State extends State<CalendarPage>
   Future<void> loadCallback() async {
     context.read<DashboardState>().resetToday();
     context.read<DashboardState>().resetUpcoming();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _toggleCalendarType() {
+    final state = context.read<DashboardState>();
+    state.calendarType = state.calendarType == CalendarStartingType.CALENDAR
+        ? CalendarStartingType.SCHEDULE
+        : CalendarStartingType.CALENDAR;
   }
 
   @override
@@ -54,14 +69,50 @@ class _State extends State<CalendarPage>
           if (snapshot.connectionState == ConnectionState.done &&
               snapshot.hasData) {
             final events = snapshot.data!;
-            return Selector<DashboardState, CalendarStartingType>(
-              selector: (_, s) => s.calendarType,
-              builder: (context, type, _) {
-                if (type == CalendarStartingType.CALENDAR)
-                  return CalendarView(events: events);
-                else
-                  return ScheduleView(events: events);
-              },
+            return Column(
+              children: [
+                // Filter action bar
+                HarbrFilterActionBar(
+                  leadingAction: HarbrFilterAction(
+                    icon: Icons.calendar_today_rounded,
+                    label: context.watch<DashboardState>().calendarType.name,
+                    onTap: _toggleCalendarType,
+                  ),
+                  trailingActions: [
+                    HarbrFilterAction(
+                      icon: Icons.more_vert_rounded,
+                      onTap: () {},
+                    ),
+                    HarbrFilterAction(
+                      icon: Icons.menu_rounded,
+                      onTap: () {},
+                    ),
+                  ],
+                ),
+                // Search field
+                HarbrSearchField(
+                  hintText: 'Search releases...',
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setState(() => _searchQuery = value);
+                  },
+                ),
+                // Calendar / Schedule content
+                Expanded(
+                  child: Selector<DashboardState, CalendarStartingType>(
+                    selector: (_, s) => s.calendarType,
+                    builder: (context, type, _) {
+                      if (type == CalendarStartingType.CALENDAR)
+                        return CalendarView(events: events);
+                      else
+                        return ScheduleView(
+                          events: events,
+                          searchQuery: _searchQuery,
+                        );
+                    },
+                  ),
+                ),
+              ],
             );
           }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:harbr/widgets/ui/tokens.dart';
 import 'package:harbr/widgets/ui/theme_extension.dart';
 import 'package:harbr/widgets/ui/harbr_nav_rail.dart';
+import 'package:harbr/widgets/ui/pill_nav_bar.dart';
 
 /// A responsive application shell that automatically adapts between a bottom
 /// navigation bar (compact / phone) and a navigation rail (expanded / tablet
@@ -35,6 +36,9 @@ class HarbrAppShell extends StatelessWidget {
   /// Optional widget placed below destinations in the rail.
   final Widget? railTrailing;
 
+  /// Optional badge counts for the pill nav bar (compact mode).
+  final Map<int, int>? badgeCounts;
+
   const HarbrAppShell({
     Key? key,
     required this.selectedIndex,
@@ -44,6 +48,7 @@ class HarbrAppShell extends StatelessWidget {
     this.extendedRail = false,
     this.railLeading,
     this.railTrailing,
+    this.badgeCounts,
   }) : super(key: key);
 
   @override
@@ -58,31 +63,15 @@ class HarbrAppShell extends StatelessWidget {
     );
   }
 
-  /// Compact layout: scaffold with a Material 3 NavigationBar at the bottom.
+  /// Compact layout: scaffold with a pill nav bar at the bottom.
   Widget _buildCompact(BuildContext context) {
-    final harbr = context.harbr;
-
     return Scaffold(
       body: body,
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: HarbrPillNavBar(
         selectedIndex: selectedIndex,
         onDestinationSelected: onDestinationSelected,
-        backgroundColor: harbr.surface0,
-        indicatorColor: harbr.accentDim,
-        surfaceTintColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        animationDuration: HarbrTokens.durationNormal,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: destinations.map((dest) {
-          return NavigationDestination(
-            icon: Icon(dest.icon, color: harbr.onSurfaceDim),
-            selectedIcon: Icon(
-              dest.selectedIcon ?? dest.icon,
-              color: harbr.accent,
-            ),
-            label: dest.label,
-          );
-        }).toList(),
+        destinations: destinations,
+        badgeCounts: badgeCounts,
       ),
     );
   }

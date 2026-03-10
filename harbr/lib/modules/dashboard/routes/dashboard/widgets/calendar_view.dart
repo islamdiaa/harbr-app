@@ -29,10 +29,6 @@ class CalendarView extends StatefulWidget {
 
 class _State extends State<CalendarView> {
   final double _calendarBulletSize = 8.0;
-  late final TextStyle dayStyle = _getTextStyle(HarbrColours.white);
-  late final TextStyle outsideStyle = _getTextStyle(HarbrColours.white70);
-  late final TextStyle unavailableStyle = _getTextStyle(HarbrColours.white10);
-  late final TextStyle weekdayStyle = _getTextStyle(HarbrColours.accent);
 
   TextStyle _getTextStyle(Color color) {
     return TextStyle(
@@ -66,6 +62,7 @@ class _State extends State<CalendarView> {
     DateTime date,
     List<dynamic> events,
   ) {
+    final harbr = context.harbr;
     Color color;
     int missingCount = _countMissingContent(date, events);
     switch (missingCount) {
@@ -73,19 +70,19 @@ class _State extends State<CalendarView> {
         color = Colors.transparent;
         break;
       case -1:
-        color = HarbrColours.blueGrey;
+        color = harbr.info;
         break;
       case 0:
-        color = HarbrColours.accent;
+        color = harbr.accent;
         break;
       case 1:
-        color = HarbrColours.orange;
+        color = harbr.warning;
         break;
       case 2:
-        color = HarbrColours.orange;
+        color = harbr.warning;
         break;
       default:
-        color = HarbrColours.red;
+        color = harbr.danger;
         break;
     }
     return PositionedDirectional(
@@ -108,6 +105,14 @@ class _State extends State<CalendarView> {
         DashboardDatabase.CALENDAR_STARTING_SIZE,
       ],
       builder: (context, _) {
+        final harbr = context.harbr;
+
+        // Build theme-aware text styles
+        final dayStyle = _getTextStyle(harbr.onSurface);
+        final outsideStyle = _getTextStyle(harbr.onSurfaceDim);
+        final unavailableStyle = _getTextStyle(harbr.onSurfaceFaint);
+        final weekdayStyle = _getTextStyle(harbr.accent);
+
         DateTime firstDay = context.watch<DashboardState>().today.subtract(
               Duration(days: DashboardDatabase.CALENDAR_DAYS_PAST.read()),
             );
@@ -129,7 +134,7 @@ class _State extends State<CalendarView> {
                 lastDay: lastDay,
                 //events: widget.events,
                 headerVisible: true,
-                headerStyle: const HeaderStyle(
+                headerStyle: HeaderStyle(
                     titleCentered: true,
                     leftChevronVisible: false,
                     rightChevronVisible: false,
@@ -138,6 +143,7 @@ class _State extends State<CalendarView> {
                     titleTextStyle: TextStyle(
                       fontSize: HarbrUI.FONT_SIZE_H2,
                       fontWeight: HarbrUI.FONT_WEIGHT_BOLD,
+                      color: harbr.onSurface,
                     )),
                 startingDayOfWeek:
                     DashboardDatabase.CALENDAR_STARTING_DAY.read().data,
@@ -150,21 +156,21 @@ class _State extends State<CalendarView> {
                   isTodayHighlighted: true,
                   outsideDaysVisible: false,
                   selectedDecoration: BoxDecoration(
-                    color:
-                        HarbrColours.accent.withOpacity(HarbrUI.OPACITY_SPLASH),
+                    color: harbr.accent
+                        .withValues(alpha: HarbrTokens.opacitySplash),
                     shape: BoxShape.circle,
                   ),
                   todayDecoration: BoxDecoration(
-                    color: HarbrColours.primary
-                        .withOpacity(HarbrUI.OPACITY_DISABLED),
+                    color: harbr.surface1
+                        .withValues(alpha: HarbrTokens.opacityMedium),
                     shape: BoxShape.circle,
                   ),
                   weekendTextStyle: dayStyle,
                   defaultTextStyle: dayStyle,
                   disabledTextStyle: unavailableStyle,
                   outsideTextStyle: outsideStyle,
-                  selectedTextStyle: const TextStyle(
-                    color: HarbrColours.accent,
+                  selectedTextStyle: TextStyle(
+                    color: harbr.accent,
                     fontWeight: HarbrUI.FONT_WEIGHT_BOLD,
                   ),
                   markersAlignment: Alignment.bottomCenter,

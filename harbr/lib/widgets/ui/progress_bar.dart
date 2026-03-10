@@ -11,6 +11,7 @@ class HarbrProgressBar extends StatelessWidget {
   final double progress;
 
   /// The color of the filled portion. Defaults to [HarbrThemeData.accent].
+  /// Ignored when [gradientColors] is provided.
   final Color? color;
 
   /// The color of the background track. Defaults to [HarbrThemeData.surface2].
@@ -19,12 +20,17 @@ class HarbrProgressBar extends StatelessWidget {
   /// The height of the bar. Defaults to 4.0.
   final double height;
 
+  /// Optional gradient colors for the filled portion. When provided, [color]
+  /// is ignored and a horizontal linear gradient is used instead.
+  final List<Color>? gradientColors;
+
   const HarbrProgressBar({
     super.key,
     required this.progress,
     this.color,
     this.backgroundColor,
     this.height = 4.0,
+    this.gradientColors,
   });
 
   @override
@@ -48,7 +54,10 @@ class HarbrProgressBar extends StatelessWidget {
               widthFactor: progress.clamp(0.0, 1.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: color ?? harbr.accent,
+                  color: gradientColors == null ? (color ?? harbr.accent) : null,
+                  gradient: gradientColors != null
+                      ? LinearGradient(colors: gradientColors!)
+                      : null,
                   borderRadius: HarbrTokens.borderRadiusPill,
                 ),
               ),

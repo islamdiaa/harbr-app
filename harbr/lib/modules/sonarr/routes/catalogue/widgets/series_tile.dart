@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:harbr/core.dart';
-import 'package:harbr/extensions/string/string.dart';
 import 'package:harbr/modules/sonarr.dart';
 import 'package:harbr/router/routes/sonarr.dart';
 
@@ -10,7 +9,7 @@ enum _SonarrSeriesTileType {
 }
 
 class SonarrSeriesTile extends StatefulWidget {
-  static final itemExtent = HarbrBlock.calculateItemExtent(3);
+  static const double itemExtent = 160.0;
 
   final SonarrSeries series;
   final SonarrQualityProfile? profile;
@@ -42,7 +41,7 @@ class _State extends State<SonarrSeriesTile> {
       builder: (context, series, _) {
         switch (widget.type) {
           case _SonarrSeriesTileType.TILE:
-            return _buildMediaRow();
+            return _buildCard();
           case _SonarrSeriesTileType.GRID:
             return _buildGridTile();
           default:
@@ -52,43 +51,95 @@ class _State extends State<SonarrSeriesTile> {
     );
   }
 
-  Widget _buildMediaRow() {
-    return HarbrMediaRow(
-      key: ObjectKey(widget.series),
-      poster: HarbrPoster(
-        url: context.read<SonarrState>().getPosterURL(widget.series.id),
-        headers: context.read<SonarrState>().headers,
-        placeholderIcon: HarbrIcons.VIDEO_CAM,
-        size: PosterSize.lg,
+  Widget _buildCard() {
+    Widget content = Opacity(
+      opacity: widget.series.monitored! ? 1.0 : HarbrTokens.opacityDisabled,
+      child: Row(
+        children: [
+          HarbrPoster(
+            url: context.read<SonarrState>().getPosterURL(widget.series.id),
+            headers: context.read<SonarrState>().headers,
+            placeholderIcon: HarbrIcons.VIDEO_CAM,
+            size: PosterSize.xl,
+            overlayWidgets: [
+              Positioned(
+                bottom: 4,
+                left: 4,
+                child: _buildStatusBadge(),
+              ),
+            ],
+          ),
+          const SizedBox(width: HarbrTokens.md),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.series.title ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: context.harbr.onSurface,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _buildSubtitleText(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: context.harbr.onSurfaceDim,
+                    fontSize: 13.0,
+                  ),
+                ),
+                if (widget.series.overview?.isNotEmpty ?? false) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.series.overview!,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: context.harbr.onSurfaceDim,
+                      fontSize: 12.0,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: HarbrTokens.xs,
+                  runSpacing: HarbrTokens.xs,
+                  children: _buildMetaChips(),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      title: widget.series.title ?? '',
-      subtitle: _buildSubtitleText(),
-      status: _buildStatusBadge(),
-      metadata: _buildMetaChips(),
-      disabled: !widget.series.monitored!,
+    );
+
+    return HarbrSurface(
+      showBorder: true,
+      borderRadius: HarbrTokens.borderRadiusXxl,
+      margin: HarbrTokens.paddingCard,
+      padding: HarbrTokens.paddingMd,
       onTap: _onTap,
       onLongPress: _onLongPress,
+      child: content,
     );
   }
 
   String _buildSubtitleText() {
     final parts = <String>[];
     parts.add(widget.series.harbrSeriesType);
+    parts.add(widget.series.harbrYear);
 
     final profile = widget.profile?.name;
     if (profile != null) {
       parts.add(profile);
-    } else {
-      parts.add(HarbrUI.TEXT_EMDASH);
-    }
-
-    final sorting = context.read<SonarrState>().seriesSortType;
-    if (sorting == SonarrSeriesSorting.DATE_ADDED) {
-      parts.add(widget.series.harbrDateAdded);
-    } else if (sorting == SonarrSeriesSorting.PREVIOUS_AIRING) {
-      parts.add(widget.series.harbrPreviousAiring());
-    } else {
-      parts.add(widget.series.harbrNextAiring());
     }
 
     return parts.join(' ${HarbrUI.TEXT_BULLET} ');

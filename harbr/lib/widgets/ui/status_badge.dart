@@ -12,6 +12,7 @@ enum StatusType {
   importing,
   error,
   continuing,
+  upcoming,
 }
 
 /// A pill-shaped status indicator badge.
@@ -41,6 +42,7 @@ class HarbrStatusBadge extends StatelessWidget {
     StatusType.importing: 'Importing',
     StatusType.error: 'Error',
     StatusType.continuing: 'Continuing',
+    StatusType.upcoming: 'Upcoming',
   };
 
   Color _statusColor(HarbrThemeData harbr) {
@@ -61,6 +63,8 @@ class HarbrStatusBadge extends StatelessWidget {
         return harbr.danger;
       case StatusType.continuing:
         return harbr.accent;
+      case StatusType.upcoming:
+        return harbr.info;
     }
   }
 

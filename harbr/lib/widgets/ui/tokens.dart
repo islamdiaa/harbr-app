@@ -26,18 +26,24 @@ abstract final class HarbrTokens {
   // ── Border radii ───────────────────────────────────────────────
   static const double radiusSm = 6.0;
   static const double radiusMd = 10.0;
+  static const double radius12 = 12.0;
   static const double radiusLg = 14.0;
   static const double radiusXl = 20.0;
+  static const double radiusXxl = 24.0;
   static const double radiusPill = 999.0;
 
   static const BorderRadius borderRadiusSm =
       BorderRadius.all(Radius.circular(radiusSm));
   static const BorderRadius borderRadiusMd =
       BorderRadius.all(Radius.circular(radiusMd));
+  static const BorderRadius borderRadius12 =
+      BorderRadius.all(Radius.circular(radius12));
   static const BorderRadius borderRadiusLg =
       BorderRadius.all(Radius.circular(radiusLg));
   static const BorderRadius borderRadiusXl =
       BorderRadius.all(Radius.circular(radiusXl));
+  static const BorderRadius borderRadiusXxl =
+      BorderRadius.all(Radius.circular(radiusXxl));
   static const BorderRadius borderRadiusPill =
       BorderRadius.all(Radius.circular(radiusPill));
 

@@ -14,14 +14,14 @@ class HarbrColours {
     blueGrey,
   ];
 
-  /// Core accent colour — Harbr teal
-  static const Color accent = Color(0xFF00BCD4);
+  /// Core accent colour — Harbr muted purple
+  static const Color accent = Color(0xFF8B7FB8);
 
-  /// Core primary colour (background) — deep navy
-  static const Color primary = Color(0xFF161B22);
+  /// Core primary colour (background) — deep purple
+  static const Color primary = Color(0xFF3D3550);
 
-  /// Core secondary colour (appbar, bottom bar, etc.) — dark charcoal
-  static const Color secondary = Color(0xFF1C2128);
+  /// Core secondary colour (appbar, bottom bar, etc.) — purple-tinted
+  static const Color secondary = Color(0xFF3D3550);
 
   static const Color blue = Color(0xFF00A8E8);
   static const Color blueGrey = Color(0xFF6E7B8B);

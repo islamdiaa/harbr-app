@@ -71,26 +71,35 @@ class _State extends State<ConfigurationRoute> with HarbrScrollControllerMixin {
     return HarbrListView(
       controller: scrollController,
       children: [
-        HarbrBlock(
+        _ConfigMenuItem(
           title: 'settings.General'.tr(),
-          body: [TextSpan(text: 'settings.GeneralDescription'.tr())],
-          trailing: const HarbrIconButton(icon: Icons.brush_rounded),
+          subtitle: 'settings.GeneralDescription'.tr(),
+          icon: Icons.brush_rounded,
+          iconColor: const Color(0xFFFF6B9D),
           onTap: SettingsRoutes.CONFIGURATION_GENERAL.go,
         ),
-        HarbrBlock(
+        _ConfigMenuItem(
           title: 'settings.Drawer'.tr(),
-          body: [TextSpan(text: 'settings.DrawerDescription'.tr())],
-          trailing: const HarbrIconButton(icon: Icons.menu_rounded),
+          subtitle: 'settings.DrawerDescription'.tr(),
+          icon: Icons.menu_rounded,
+          iconColor: const Color(0xFF8B7FB8),
           onTap: SettingsRoutes.CONFIGURATION_DRAWER.go,
         ),
         if (HarbrQuickActions.isSupported)
-          HarbrBlock(
+          _ConfigMenuItem(
             title: 'settings.QuickActions'.tr(),
-            body: [TextSpan(text: 'settings.QuickActionsDescription'.tr())],
-            trailing: const HarbrIconButton(icon: Icons.rounded_corner_rounded),
+            subtitle: 'settings.QuickActionsDescription'.tr(),
+            icon: Icons.rounded_corner_rounded,
+            iconColor: const Color(0xFFFF9000),
             onTap: SettingsRoutes.CONFIGURATION_QUICK_ACTIONS.go,
           ),
-        HarbrDivider(),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: HarbrTokens.lg,
+            vertical: HarbrTokens.sm,
+          ),
+          child: HarbrDivider(),
+        ),
         ..._moduleList(),
       ],
     );
@@ -103,13 +112,85 @@ class _State extends State<ConfigurationRoute> with HarbrScrollControllerMixin {
   }
 
   Widget _tileFromModuleMap(HarbrModule module) {
-    return HarbrBlock(
+    return _ConfigMenuItem(
       title: module.title,
-      body: [
-        TextSpan(text: 'settings.ConfigureModule'.tr(args: [module.title]))
-      ],
-      trailing: HarbrIconButton(icon: module.icon),
+      subtitle: 'settings.ConfigureModule'.tr(args: [module.title]),
+      icon: module.icon,
+      iconColor: module.color,
       onTap: module.settingsRoute!.go,
+    );
+  }
+}
+
+class _ConfigMenuItem extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color iconColor;
+  final VoidCallback onTap;
+
+  const _ConfigMenuItem({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.iconColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final harbr = context.harbr;
+
+    return HarbrSurface(
+      level: SurfaceLevel.canvas,
+      borderRadius: HarbrTokens.borderRadiusXl,
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(
+        horizontal: HarbrTokens.md,
+        vertical: HarbrTokens.xs,
+      ),
+      onTap: onTap,
+      child: Row(
+        children: [
+          HarbrIconCircle(
+            icon: icon,
+            color: iconColor,
+            size: 40,
+          ),
+          const SizedBox(width: HarbrTokens.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: HarbrUI.FONT_SIZE_H2,
+                    fontWeight: HarbrUI.FONT_WEIGHT_BOLD,
+                    color: harbr.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: HarbrUI.FONT_SIZE_H3,
+                    color: harbr.onSurfaceDim,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: HarbrTokens.sm),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: harbr.onSurfaceFaint,
+            size: HarbrTokens.iconLg,
+          ),
+        ],
+      ),
     );
   }
 }

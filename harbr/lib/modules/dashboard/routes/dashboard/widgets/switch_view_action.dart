@@ -5,60 +5,35 @@ import 'package:harbr/vendor.dart';
 import 'package:harbr/modules/dashboard/core/adapters/calendar_starting_type.dart';
 import 'package:harbr/modules/dashboard/core/state.dart';
 
-class SwitchViewAction extends StatefulWidget {
-  final PageController? pageController;
+class SwitchViewAction extends StatelessWidget {
+  /// The index of the calendar tab in the dashboard navigation.
+  static const int calendarTabIndex = 2;
+
+  /// The currently selected navigation index.
+  final int selectedIndex;
+
   const SwitchViewAction({
     Key? key,
-    required this.pageController,
+    required this.selectedIndex,
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _State();
-}
-
-class _State extends State<SwitchViewAction> with HarbrLoadCallbackMixin {
-  bool _showButton = false;
-
-  @override
-  Future<void> loadCallback() async {
-    _pageControllerListener();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    widget.pageController?.addListener(_pageControllerListener);
-  }
-
-  @override
-  void dispose() {
-    widget.pageController?.removeListener(_pageControllerListener);
-    super.dispose();
-  }
-
-  void _pageControllerListener() {
-    int? page = widget.pageController?.page?.round();
-    setState(() => _showButton = page == 1);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    if (selectedIndex != calendarTabIndex) return const SizedBox.shrink();
+
     return Selector<DashboardState, CalendarStartingType>(
       selector: (_, state) => state.calendarType,
       builder: (context, view, _) {
-        if (_showButton) {
-          return HarbrIconButton.appBar(
-            icon: view.icon,
-            onPressed: () {
-              final state = context.read<DashboardState>();
-              if (view == CalendarStartingType.CALENDAR)
-                state.calendarType = CalendarStartingType.SCHEDULE;
-              else
-                state.calendarType = CalendarStartingType.CALENDAR;
-            },
-          );
-        }
-        return Container();
+        return HarbrIconButton.appBar(
+          icon: view.icon,
+          onPressed: () {
+            final state = context.read<DashboardState>();
+            if (view == CalendarStartingType.CALENDAR)
+              state.calendarType = CalendarStartingType.SCHEDULE;
+            else
+              state.calendarType = CalendarStartingType.CALENDAR;
+          },
+        );
       },
     );
   }

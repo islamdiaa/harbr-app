@@ -56,6 +56,15 @@ export 'ui/harbr_nav_rail.dart';
 export 'ui/harbr_app_shell.dart';
 export 'ui/responsive_layout.dart';
 export 'ui/responsive_grid.dart';
+export 'ui/pill_nav_bar.dart';
+export 'ui/collapsible_section.dart';
+export 'ui/poster_carousel.dart';
+export 'ui/bar_chart_card.dart';
+export 'ui/gradient_progress_bar.dart';
+export 'ui/icon_circle.dart';
+export 'ui/timeline_indicator.dart';
+export 'ui/filter_action_bar.dart';
+export 'ui/search_field.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class HarbrUI {
