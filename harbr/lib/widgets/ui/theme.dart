@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:google_fonts/google_fonts.dart';
 import 'package:harbr/core.dart';
 import 'package:harbr/widgets/ui/harbr_colors.dart';
 import 'package:harbr/widgets/ui/theme_extension.dart';
@@ -66,13 +67,13 @@ class HarbrTheme {
         preferBelow: true,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: HarbrColors.surface0,
+        backgroundColor: HarbrColors.canvas,
         foregroundColor: HarbrColors.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: HarbrColors.surface0,
+        backgroundColor: HarbrColors.canvas,
       ),
       cardTheme: CardThemeData(
         color: HarbrColors.surface1,
@@ -240,9 +241,9 @@ class HarbrTheme {
   SystemUiOverlayStyle get overlayStyle {
     return SystemUiOverlayStyle(
       systemNavigationBarColor:
-          isAMOLEDTheme ? Colors.black : HarbrColors.surface0,
+          isAMOLEDTheme ? Colors.black : HarbrColors.canvas,
       systemNavigationBarDividerColor:
-          isAMOLEDTheme ? Colors.black : HarbrColors.surface0,
+          isAMOLEDTheme ? Colors.black : HarbrColors.canvas,
       statusBarColor: Colors.transparent,
       systemNavigationBarIconBrightness: Brightness.light,
       statusBarIconBrightness: Brightness.light,
@@ -251,23 +252,9 @@ class HarbrTheme {
   }
 
   TextTheme get _sharedTextTheme {
-    const style = TextStyle(color: HarbrColors.onSurface);
-    return const TextTheme(
-      displaySmall: style,
-      displayMedium: style,
-      displayLarge: style,
-      headlineSmall: style,
-      headlineMedium: style,
-      headlineLarge: style,
-      bodySmall: style,
-      bodyMedium: style,
-      bodyLarge: style,
-      titleSmall: style,
-      titleMedium: style,
-      titleLarge: style,
-      labelSmall: style,
-      labelMedium: style,
-      labelLarge: style,
+    return GoogleFonts.interTextTheme(ThemeData.dark().textTheme).apply(
+      bodyColor: HarbrColors.onSurface,
+      displayColor: HarbrColors.onSurface,
     );
   }
 

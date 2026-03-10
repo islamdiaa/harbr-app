@@ -16,6 +16,10 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
   final Color accent;
   final Color accentDim;
 
+  // Navigation active (purple)
+  final Color navActive;
+  final Color navActiveDim;
+
   // Semantic
   final Color success;
   final Color warning;
@@ -40,6 +44,8 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
     required this.deepSurface,
     required this.accent,
     required this.accentDim,
+    required this.navActive,
+    required this.navActiveDim,
     required this.success,
     required this.warning,
     required this.danger,
@@ -61,6 +67,8 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
     deepSurface: HarbrColors.deepSurface,
     accent: HarbrColors.accent,
     accentDim: HarbrColors.accentDim,
+    navActive: HarbrColors.navActive,
+    navActiveDim: HarbrColors.navActiveDim,
     success: HarbrColors.success,
     warning: HarbrColors.warning,
     danger: HarbrColors.danger,
@@ -82,6 +90,8 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
     deepSurface: HarbrColors.amoledDeepSurface,
     accent: HarbrColors.accent,
     accentDim: HarbrColors.accentDim,
+    navActive: HarbrColors.navActive,
+    navActiveDim: HarbrColors.navActiveDim,
     success: HarbrColors.success,
     warning: HarbrColors.warning,
     danger: HarbrColors.danger,
@@ -103,6 +113,8 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
     Color? deepSurface,
     Color? accent,
     Color? accentDim,
+    Color? navActive,
+    Color? navActiveDim,
     Color? success,
     Color? warning,
     Color? danger,
@@ -122,6 +134,8 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
       deepSurface: deepSurface ?? this.deepSurface,
       accent: accent ?? this.accent,
       accentDim: accentDim ?? this.accentDim,
+      navActive: navActive ?? this.navActive,
+      navActiveDim: navActiveDim ?? this.navActiveDim,
       success: success ?? this.success,
       warning: warning ?? this.warning,
       danger: danger ?? this.danger,
@@ -146,6 +160,8 @@ class HarbrThemeData extends ThemeExtension<HarbrThemeData> {
       deepSurface: Color.lerp(deepSurface, other.deepSurface, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
       accentDim: Color.lerp(accentDim, other.accentDim, t)!,
+      navActive: Color.lerp(navActive, other.navActive, t)!,
+      navActiveDim: Color.lerp(navActiveDim, other.navActiveDim, t)!,
       success: Color.lerp(success, other.success, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
       danger: Color.lerp(danger, other.danger, t)!,

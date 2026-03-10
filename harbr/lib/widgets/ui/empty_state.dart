@@ -54,7 +54,7 @@ class HarbrEmptyState extends StatelessWidget {
               title,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 color: harbr.onSurface,
               ),
             ),

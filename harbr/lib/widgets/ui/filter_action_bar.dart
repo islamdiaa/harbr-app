@@ -91,7 +91,7 @@ class _PillButton extends StatelessWidget {
                   style: TextStyle(
                     color: harbr.onSurface,
                     fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],

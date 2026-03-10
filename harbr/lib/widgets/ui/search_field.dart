@@ -72,9 +72,11 @@ class _HarbrSearchFieldState extends State<HarbrSearchField> {
           duration: HarbrTokens.durationFast,
           decoration: BoxDecoration(
             color: harbr.surface0,
-            borderRadius: HarbrTokens.borderRadiusPill,
+            borderRadius: HarbrTokens.borderRadius12,
             border: Border.all(
-              color: _hasFocus ? harbr.accent : harbr.border,
+              color: _hasFocus
+                  ? harbr.accent.withValues(alpha: 0.50)
+                  : harbr.border,
             ),
           ),
           child: TextField(

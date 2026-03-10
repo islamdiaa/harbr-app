@@ -67,15 +67,15 @@ class HarbrNavRail extends StatelessWidget {
       selectedIndex: selectedIndex,
       onDestinationSelected: onDestinationSelected,
       extended: extended,
-      backgroundColor: harbr.surface0,
-      // Selection indicator
-      indicatorColor: harbr.accentDim,
+      backgroundColor: harbr.canvas,
+      // Selection indicator — purple pill
+      indicatorColor: harbr.navActiveDim,
       indicatorShape: RoundedRectangleBorder(
         borderRadius: HarbrTokens.borderRadiusPill,
       ),
-      // Icon theming
+      // Icon theming — purple when selected
       selectedIconTheme: IconThemeData(
-        color: harbr.accent,
+        color: harbr.navActive,
         size: HarbrTokens.iconLg,
       ),
       unselectedIconTheme: IconThemeData(
@@ -84,7 +84,7 @@ class HarbrNavRail extends StatelessWidget {
       ),
       // Label theming
       selectedLabelTextStyle: TextStyle(
-        color: harbr.accent,
+        color: harbr.navActive,
         fontSize: 14.0,
         fontWeight: FontWeight.w500,
       ),

@@ -77,11 +77,11 @@ class HarbrUI {
   static const String TEXT_EMDASH = '—';
 
   // <--> Font Sizes
-  static const double FONT_SIZE_H1 = 18.0;
-  static const double FONT_SIZE_H2 = 16.0;
-  static const double FONT_SIZE_H3 = 14.0;
-  static const double FONT_SIZE_H4 = 12.0;
-  static const double FONT_SIZE_H5 = 10.0;
+  static const double FONT_SIZE_H1 = 24.0;
+  static const double FONT_SIZE_H2 = 20.0;
+  static const double FONT_SIZE_H3 = 18.0;
+  static const double FONT_SIZE_H4 = 16.0;
+  static const double FONT_SIZE_H5 = 12.0;
 
   // <--> Font Size Mappings
   static const double FONT_SIZE_BUTTON = FONT_SIZE_H3;
@@ -102,13 +102,13 @@ class HarbrUI {
   static const int ANIMATION_SPEED_SHIMMER = ANIMATION_SPEED * 4;
 
   // <--> Other
-  static const double BORDER_RADIUS = 10.0;
+  static const double BORDER_RADIUS = 12.0;
   static const double OPACITY_DIMMED = 0.75;
   static const double OPACITY_DISABLED = 0.50;
   static const double OPACITY_SPLASH = 0.25;
   static const double OPACITY_SELECTED = 0.35;
   static const double ELEVATION = 0.0;
-  static const FontWeight FONT_WEIGHT_BOLD = FontWeight.w600;
+  static const FontWeight FONT_WEIGHT_BOLD = FontWeight.w500;
 
   // <--> Margins
   static const double DEFAULT_MARGIN_SIZE = 12.0;

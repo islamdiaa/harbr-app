@@ -123,7 +123,7 @@ class _State extends State<SonarrSeriesTile> {
 
     return HarbrSurface(
       showBorder: true,
-      borderRadius: HarbrTokens.borderRadiusXxl,
+      borderRadius: HarbrTokens.borderRadius12,
       margin: HarbrTokens.paddingCard,
       padding: HarbrTokens.paddingMd,
       onTap: _onTap,

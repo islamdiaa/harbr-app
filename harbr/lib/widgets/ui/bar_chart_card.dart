@@ -51,7 +51,7 @@ class _HarbrBarChartCardState extends State<HarbrBarChartCard> {
       padding: HarbrTokens.paddingXl,
       decoration: BoxDecoration(
         color: harbr.surface0,
-        borderRadius: HarbrTokens.borderRadiusXxl,
+        borderRadius: HarbrTokens.borderRadius12,
         border: Border.all(color: harbr.border),
       ),
       child: Column(
@@ -63,7 +63,7 @@ class _HarbrBarChartCardState extends State<HarbrBarChartCard> {
             style: TextStyle(
               color: harbr.onSurface,
               fontSize: 18,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: HarbrTokens.md),

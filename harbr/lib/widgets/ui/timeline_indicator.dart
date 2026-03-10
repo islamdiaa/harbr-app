@@ -59,7 +59,7 @@ class HarbrTimelineIndicator extends StatelessWidget {
                         style: TextStyle(
                           color: accentColor,
                           fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -69,7 +69,7 @@ class HarbrTimelineIndicator extends StatelessWidget {
                         style: TextStyle(
                           color: isToday ? harbr.accent : harbr.onSurface,
                           fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 1),
@@ -78,7 +78,7 @@ class HarbrTimelineIndicator extends StatelessWidget {
                         _yearFormat.format(date),
                         style: TextStyle(
                           color: harbr.onSurfaceFaint,
-                          fontSize: 9,
+                          fontSize: 10,
                         ),
                       ),
                     ],

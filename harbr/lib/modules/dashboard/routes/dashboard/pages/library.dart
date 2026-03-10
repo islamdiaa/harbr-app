@@ -23,6 +23,8 @@ class LibraryPage extends StatefulWidget {
 class _LibraryPageState extends State<LibraryPage>
     with AutomaticKeepAliveClientMixin {
   String _searchQuery = '';
+  String _mediaType = 'movies';
+  String _filter = 'all';
 
   @override
   bool get wantKeepAlive => true;
@@ -34,8 +36,81 @@ class _LibraryPageState extends State<LibraryPage>
   Widget build(BuildContext context) {
     super.build(context);
 
+    final harbr = context.harbr;
+
     return Column(
       children: [
+        // SafeArea top padding (no appbar)
+        SafeArea(bottom: false, child: const SizedBox(height: HarbrTokens.lg)),
+
+        // Header: "Library" + stats + add buttons
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: HarbrTokens.lg),
+          child: Row(
+            children: [
+              Text(
+                'Library',
+                style: TextStyle(
+                  color: harbr.onSurface,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const Spacer(),
+              // Stats button
+              GestureDetector(
+                onTap: () {},
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: harbr.surface0,
+                    borderRadius: HarbrTokens.borderRadius12,
+                    border: Border.all(color: harbr.border),
+                  ),
+                  child: Icon(
+                    Icons.bar_chart_rounded,
+                    color: harbr.onSurfaceDim,
+                    size: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(width: HarbrTokens.sm),
+              // Add button (orange)
+              GestureDetector(
+                onTap: () {},
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: harbr.accent,
+                    borderRadius: HarbrTokens.borderRadius12,
+                  ),
+                  child: const Icon(
+                    Icons.add_rounded,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: HarbrTokens.lg),
+
+        // Media type tabs (Movies / TV Shows)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: HarbrTokens.lg),
+          child: Row(
+            children: [
+              _buildMediaTypeTab(harbr, 'movies', 'Movies'),
+              const SizedBox(width: HarbrTokens.sm),
+              _buildMediaTypeTab(harbr, 'tv_shows', 'TV Shows'),
+            ],
+          ),
+        ),
+        const SizedBox(height: HarbrTokens.lg),
+
         HarbrFilterActionBar(
           leadingAction: HarbrFilterAction(
             icon: Icons.add_rounded,
@@ -57,6 +132,27 @@ class _LibraryPageState extends State<LibraryPage>
           hintText: 'Search library...',
           onChanged: (value) => setState(() => _searchQuery = value),
         ),
+
+        // Filter pills (All / Complete / Missing / Upcoming)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: HarbrTokens.lg),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildFilterPill(harbr, 'all', 'All'),
+                const SizedBox(width: HarbrTokens.sm),
+                _buildFilterPill(harbr, 'complete', 'Complete'),
+                const SizedBox(width: HarbrTokens.sm),
+                _buildFilterPill(harbr, 'missing', 'Missing'),
+                const SizedBox(width: HarbrTokens.sm),
+                _buildFilterPill(harbr, 'upcoming', 'Upcoming'),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: HarbrTokens.lg),
+
         Expanded(
           child: _hasServices
               ? _buildServiceEntries(context)
@@ -107,6 +203,58 @@ class _LibraryPageState extends State<LibraryPage>
       },
     );
   }
+
+  /// Builds a media-type tab pill ("Movies" or "TV Shows").
+  Widget _buildMediaTypeTab(HarbrThemeData harbr, String value, String label) {
+    final isActive = _mediaType == value;
+    return GestureDetector(
+      onTap: () => setState(() => _mediaType = value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: isActive ? harbr.accent : harbr.surface0,
+          borderRadius: HarbrTokens.borderRadiusPill,
+          border: isActive ? null : Border.all(color: harbr.border),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isActive ? Colors.white : harbr.onSurfaceDim,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds a filter pill ("All", "Complete", "Missing", "Upcoming").
+  Widget _buildFilterPill(HarbrThemeData harbr, String value, String label) {
+    final isActive = _filter == value;
+    return GestureDetector(
+      onTap: () => setState(() => _filter = value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: isActive ? harbr.surface2 : harbr.surface0,
+          borderRadius: HarbrTokens.borderRadiusPill,
+          border: Border.all(
+            color: isActive
+                ? harbr.onSurface.withValues(alpha: 0.2)
+                : harbr.border,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isActive ? harbr.onSurface : harbr.onSurfaceDim,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// A service entry card for the Library tab.
@@ -124,7 +272,7 @@ class _LibraryServiceCard extends StatelessWidget {
 
     return HarbrSurface(
       level: SurfaceLevel.base,
-      borderRadius: HarbrTokens.borderRadiusXxl,
+      borderRadius: HarbrTokens.borderRadius12,
       showBorder: true,
       margin: EdgeInsets.zero,
       padding: HarbrTokens.paddingXl,
@@ -137,7 +285,7 @@ class _LibraryServiceCard extends StatelessWidget {
             height: 48,
             decoration: BoxDecoration(
               color: module.color.withValues(alpha: 0.15),
-              borderRadius: HarbrTokens.borderRadiusXl,
+              borderRadius: HarbrTokens.borderRadius12,
             ),
             child: Icon(
               module.icon,

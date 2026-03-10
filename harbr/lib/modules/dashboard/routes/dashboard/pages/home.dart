@@ -12,7 +12,10 @@ import 'package:harbr/widgets/ui/bar_chart_card.dart';
 import 'package:harbr/widgets/ui/harbr_colors.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  /// Callback to switch the dashboard bottom nav tab.
+  final ValueChanged<int>? onSwitchTab;
+
+  const HomePage({Key? key, this.onSwitchTab}) : super(key: key);
 
   @override
   State<HomePage> createState() => _State();
@@ -31,12 +34,14 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
 
     return ListView(
       padding: const EdgeInsets.symmetric(
-        horizontal: HarbrTokens.md,
-        vertical: HarbrTokens.lg,
+        horizontal: HarbrTokens.lg,
       ),
       children: [
-        // 1. Network Selector Row
-        _buildNetworkSelectorRow(context),
+        // SafeArea top padding (no appbar)
+        SafeArea(bottom: false, child: const SizedBox(height: HarbrTokens.xl)),
+
+        // 1. Header Row
+        _buildHeader(context),
         const SizedBox(height: HarbrTokens.xl),
 
         // 2. Services Section
@@ -49,16 +54,20 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
         _buildSectionHeader(
           context,
           'Upcoming Releases',
-          showIndicator: _hasServices,
           showOverflow: _hasServices,
+          onViewAll: () => widget.onSwitchTab?.call(2), // Calendar tab
         ),
         const SizedBox(height: HarbrTokens.sm),
         _buildUpcomingReleases(context),
         const SizedBox(height: HarbrTokens.xl),
 
-        // 4. Currently Playing Section
+        // 4. Currently Downloading Section
         _buildSectionHeader(
-            context, 'Currently Playing', showOverflow: _hasServices),
+          context,
+          'Currently Downloading',
+          showOverflow: _hasServices,
+          onViewAll: () => widget.onSwitchTab?.call(3), // Activities tab
+        ),
         const SizedBox(height: HarbrTokens.sm),
         _buildCurrentlyPlaying(context),
         const SizedBox(height: HarbrTokens.xl),
@@ -67,8 +76,8 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
         _buildSectionHeader(
           context,
           'Latest Downloads',
-          showIndicator: _hasServices,
           showOverflow: _hasServices,
+          onViewAll: () => widget.onSwitchTab?.call(1), // Library tab
         ),
         const SizedBox(height: HarbrTokens.sm),
         _buildLatestDownloads(context),
@@ -94,51 +103,74 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  // ── 1. Network Selector Row ───────────────────────────────────────
+  // ── 1. Header Row (Figma-aligned) ─────────────────────────────────
 
-  Widget _buildNetworkSelectorRow(BuildContext context) {
+  Widget _buildHeader(BuildContext context) {
     final harbr = context.harbr;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: HarbrTokens.xs),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: HarbrTokens.xl,
-              vertical: HarbrTokens.md,
-            ),
-            decoration: BoxDecoration(
-              color: harbr.surface0,
-              borderRadius: HarbrTokens.borderRadiusPill,
-              border: Border.all(color: harbr.border),
-            ),
-            child: Text(
-              'Default Network',
-              style: TextStyle(
-                color: harbr.onSurface,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'harbr',
+                style: TextStyle(
+                  color: harbr.onSurface,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
+              const SizedBox(height: 2),
+              Text(
+                'Your media at a glance',
+                style: TextStyle(
+                  color: harbr.onSurfaceDim,
+                  fontSize: 13,
+                ),
+              ),
+            ],
           ),
-          const Spacer(),
-          GestureDetector(
-            onTap: () => HarbrRoutes.settings.root.go(buildTree: true),
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: harbr.surface0,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.settings_rounded,
-                color: harbr.onSurfaceDim,
-                size: HarbrTokens.iconMd,
-              ),
-            ),
-          ),
-        ],
+        ),
+        _headerIconButton(
+          context,
+          icon: Icons.search_rounded,
+          onTap: () {
+            // Switch to Library tab (index 1)
+          },
+        ),
+        const SizedBox(width: HarbrTokens.sm),
+        _headerIconButton(
+          context,
+          icon: Icons.settings_rounded,
+          onTap: () => HarbrRoutes.settings.root.go(buildTree: true),
+        ),
+      ],
+    );
+  }
+
+  Widget _headerIconButton(
+    BuildContext context, {
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    final harbr = context.harbr;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: harbr.surface0,
+          borderRadius: HarbrTokens.borderRadius12,
+          border: Border.all(color: harbr.border),
+        ),
+        child: Icon(
+          icon,
+          color: harbr.onSurfaceDim,
+          size: 16,
+        ),
       ),
     );
   }
@@ -150,43 +182,42 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
     String title, {
     bool showIndicator = false,
     bool showOverflow = false,
+    VoidCallback? onViewAll,
   }) {
     final harbr = context.harbr;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: HarbrTokens.xs),
-      child: Row(
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: harbr.onSurface,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
+    return Row(
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: harbr.onSurface,
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const Spacer(),
+        if (showOverflow && onViewAll != null)
+          GestureDetector(
+            onTap: onViewAll,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'View All',
+                  style: TextStyle(
+                    color: harbr.accent, // orange
+                    fontSize: 12,
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: harbr.accent,
+                  size: 12,
+                ),
+              ],
             ),
           ),
-          if (showIndicator) ...[
-            const SizedBox(width: HarbrTokens.sm),
-            Container(
-              width: 4,
-              height: 16,
-              decoration: BoxDecoration(
-                color: HarbrColors.orange,
-                borderRadius: HarbrTokens.borderRadiusPill,
-              ),
-            ),
-          ],
-          const Spacer(),
-          if (showOverflow)
-            GestureDetector(
-              onTap: () {},
-              child: Icon(
-                Icons.more_vert_rounded,
-                color: harbr.onSurfaceDim,
-                size: HarbrTokens.iconMd,
-              ),
-            ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -196,7 +227,7 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
     final harbr = context.harbr;
     return HarbrSurface(
       level: SurfaceLevel.base,
-      borderRadius: const BorderRadius.all(Radius.circular(16)),
+      borderRadius: HarbrTokens.borderRadius12,
       showBorder: false,
       margin: EdgeInsets.zero,
       padding: const EdgeInsets.all(HarbrTokens.xl),
@@ -231,11 +262,13 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
       );
     }
 
-    return Column(
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
       children: enabledModules
           .take(6)
-          .map((module) => Padding(
-                padding: const EdgeInsets.only(bottom: HarbrTokens.sm),
+          .map((module) => SizedBox(
+                width: (MediaQuery.of(context).size.width - 42) / 2, // 2-col grid with gaps
                 child: _ServiceCard(module: module),
               ))
           .toList(),
@@ -292,8 +325,8 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
           items: const [],
           initialVisibleCount: 5,
           gradientColors: const [
-            Color(0xFF8B7FB8),
-            Color(0xFF7C4DFF),
+            HarbrColors.accent,
+            HarbrColors.orange,
           ],
         ),
       ],
@@ -303,7 +336,7 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
   Widget _buildOverviewCard(HarbrThemeData harbr) {
     return HarbrSurface(
       level: SurfaceLevel.base,
-      borderRadius: HarbrTokens.borderRadiusXxl,
+      borderRadius: HarbrTokens.borderRadius12,
       showBorder: true,
       margin: EdgeInsets.zero,
       padding: HarbrTokens.paddingXl,
@@ -350,7 +383,7 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
   Widget _buildCompletenessCard(HarbrThemeData harbr) {
     return HarbrSurface(
       level: SurfaceLevel.base,
-      borderRadius: HarbrTokens.borderRadiusXxl,
+      borderRadius: HarbrTokens.borderRadius12,
       showBorder: true,
       margin: EdgeInsets.zero,
       padding: HarbrTokens.paddingXl,
@@ -397,8 +430,8 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
             progress: 0.0,
             height: 12,
             gradientColors: [
-              Color(0xFFFF9000),
-              Color(0xFFFF6B00),
+              HarbrColors.accent,
+              HarbrColors.orange,
             ],
           ),
           const SizedBox(height: HarbrTokens.xs),
@@ -424,7 +457,7 @@ class _State extends State<HomePage> with AutomaticKeepAliveClientMixin {
     // TODO: fetch real counts from enabled services
     return HarbrSurface(
       level: SurfaceLevel.base,
-      borderRadius: HarbrTokens.borderRadiusXxl,
+      borderRadius: HarbrTokens.borderRadius12,
       showBorder: true,
       margin: EdgeInsets.zero,
       padding: HarbrTokens.paddingXl,
@@ -467,120 +500,55 @@ class _ServiceCard extends StatelessWidget {
     final harbr = context.harbr;
     return HarbrSurface(
       level: SurfaceLevel.base,
-      borderRadius: HarbrTokens.borderRadiusXxl,
+      borderRadius: HarbrTokens.borderRadius12,
       showBorder: true,
       margin: EdgeInsets.zero,
-      padding: HarbrTokens.paddingXl,
+      padding: const EdgeInsets.all(12),
       onTap: module.launch,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: module.color,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: HarbrTokens.sm),
-              Expanded(
-                child: Text(
+          // Colored icon square (36x36, rounded-lg, color at 12%)
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: module.color.withValues(alpha: 0.12),
+              borderRadius: HarbrTokens.borderRadiusSm,
+            ),
+            child: Icon(
+              Icons.dns_rounded,
+              color: module.color,
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   module.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: harbr.onSurface,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
                   ),
                 ),
-              ),
-              Icon(
-                Icons.wifi_rounded,
-                color: harbr.success,
-                size: HarbrTokens.iconMd,
-              ),
-              const SizedBox(width: HarbrTokens.sm),
-              Icon(
-                Icons.remove_rounded,
-                color: harbr.onSurfaceDim,
-                size: HarbrTokens.iconMd,
-              ),
-            ],
-          ),
-          const SizedBox(height: HarbrTokens.md),
-          // Stats rows — populated with real data when available
-          _ServiceStatRow(
-            icon: Icons.movie_rounded,
-            label: 'Movies',
-            value: '—',
-            harbr: harbr,
-          ),
-          const SizedBox(height: HarbrTokens.xs),
-          _ServiceStatRow(
-            icon: Icons.insert_drive_file_rounded,
-            label: 'Files',
-            value: '—',
-            harbr: harbr,
-          ),
-          const SizedBox(height: HarbrTokens.xs),
-          _ServiceStatRow(
-            icon: Icons.storage_rounded,
-            label: 'Size',
-            value: '—',
-            harbr: harbr,
+                Text(
+                  module.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: harbr.onSurfaceDim,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ServiceStatRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final HarbrThemeData harbr;
-
-  const _ServiceStatRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.harbr,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: harbr.onSurfaceDim, size: HarbrTokens.iconSm),
-        const SizedBox(width: HarbrTokens.sm),
-        Text(
-          label,
-          style: TextStyle(
-            color: harbr.onSurfaceDim,
-            fontSize: 14,
-          ),
-        ),
-        Text(
-          HarbrUI.TEXT_BULLET,
-          style: TextStyle(
-            color: harbr.onSurfaceFaint,
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(width: HarbrTokens.xs),
-        Text(
-          value,
-          style: TextStyle(
-            color: harbr.onSurface,
-            fontSize: 14,
-          ),
-        ),
-      ],
     );
   }
 }

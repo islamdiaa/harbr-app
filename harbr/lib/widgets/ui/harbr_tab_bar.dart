@@ -56,7 +56,7 @@ class HarbrTabBar extends StatelessWidget implements PreferredSizeWidget {
       // Feedback
       splashFactory: InkSparkle.splashFactory,
       overlayColor: WidgetStatePropertyAll(
-        harbr.accent.withOpacity(HarbrTokens.opacitySplash),
+        harbr.accent.withValues(alpha: HarbrTokens.opacitySplash),
       ),
       // No divider line beneath the tab bar
       dividerHeight: 0.0,

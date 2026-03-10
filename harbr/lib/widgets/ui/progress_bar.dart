@@ -17,7 +17,7 @@ class HarbrProgressBar extends StatelessWidget {
   /// The color of the background track. Defaults to [HarbrThemeData.surface2].
   final Color? backgroundColor;
 
-  /// The height of the bar. Defaults to 4.0.
+  /// The height of the bar. Defaults to 6.0.
   final double height;
 
   /// Optional gradient colors for the filled portion. When provided, [color]
@@ -29,7 +29,7 @@ class HarbrProgressBar extends StatelessWidget {
     required this.progress,
     this.color,
     this.backgroundColor,
-    this.height = 4.0,
+    this.height = 6.0,
     this.gradientColors,
   });
 

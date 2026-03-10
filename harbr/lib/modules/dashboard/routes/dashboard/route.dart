@@ -13,8 +13,6 @@ import 'package:harbr/modules/dashboard/routes/dashboard/pages/library.dart';
 import 'package:harbr/modules/dashboard/routes/dashboard/pages/calendar.dart';
 import 'package:harbr/modules/dashboard/routes/dashboard/pages/modules.dart';
 import 'package:harbr/modules/dashboard/routes/dashboard/pages/activities.dart';
-import 'package:harbr/modules/dashboard/routes/dashboard/widgets/switch_view_action.dart';
-import 'package:harbr/modules/dashboard/routes/dashboard/widgets/navigation_bar.dart';
 
 class DashboardRoute extends StatefulWidget {
   const DashboardRoute({
@@ -80,15 +78,13 @@ class _State extends State<DashboardRoute> {
     );
   }
 
-  /// Compact layout: single Scaffold with drawer, app bar at the top,
-  /// pill nav bar at the bottom, and indexed pages in the body.
+  /// Compact layout: no drawer, no app bar — just pill nav bar at the
+  /// bottom and indexed pages in the body (matches Figma mobile design).
   Widget _buildCompact(BuildContext context) {
     final profileKey = ValueKey(HarbrDatabase.ENABLED_PROFILE.read());
 
     return Scaffold(
       key: _scaffoldKey,
-      drawer: HarbrDrawer(page: HarbrModule.DASHBOARD.key),
-      appBar: _appBar(),
       bottomNavigationBar: HarbrPillNavBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onDestinationSelected,
@@ -97,7 +93,10 @@ class _State extends State<DashboardRoute> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          HomePage(key: profileKey),
+          HomePage(
+            key: profileKey,
+            onSwitchTab: _onDestinationSelected,
+          ),
           LibraryPage(key: profileKey),
           CalendarPage(key: profileKey),
           const ActivitiesPage(),
@@ -106,16 +105,14 @@ class _State extends State<DashboardRoute> {
     );
   }
 
-  /// Expanded layout: Scaffold with drawer, app bar, nav rail on the left,
-  /// and indexed pages on the right.
+  /// Expanded layout: nav rail on the left, indexed pages on the right.
+  /// No drawer or app bar.
   Widget _buildExpanded(BuildContext context) {
     final harbr = context.harbr;
     final profileKey = ValueKey(HarbrDatabase.ENABLED_PROFILE.read());
 
     return Scaffold(
       key: _scaffoldKey,
-      drawer: HarbrDrawer(page: HarbrModule.DASHBOARD.key),
-      appBar: _appBar(),
       body: Row(
         children: [
           HarbrNavRail(
@@ -141,15 +138,6 @@ class _State extends State<DashboardRoute> {
           ),
         ],
       ),
-    );
-  }
-
-  PreferredSizeWidget _appBar() {
-    return HarbrAppBar(
-      title: 'Harbr',
-      useDrawer: true,
-      scrollControllers: HomeNavigationBar.scrollControllers,
-      actions: [SwitchViewAction(selectedIndex: _selectedIndex)],
     );
   }
 }

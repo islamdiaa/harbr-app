@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
 import 'package:harbr/core.dart';
@@ -9,10 +9,11 @@ import 'package:harbr/router/routes/radarr.dart';
 import 'package:harbr/widgets/pages/invalid_route.dart';
 
 /// Figma-spec gradient colors for media detail pages.
+/// Transparent canvas → opaque canvas (#1A1525).
 const _kGradientColors = [
-  Color(0xFF6B5D4F), // warm brown
-  Color(0xFF4A3F35), // dark brown
-  Color(0xFF2D2540), // purple base
+  Color(0x661A1525), // 40% canvas
+  Color(0xCC1A1525), // 80% canvas
+  Color(0xFF1A1525), // 100% canvas
 ];
 
 class MovieDetailsRoute extends StatefulWidget {
@@ -134,34 +135,63 @@ class _State extends State<MovieDetailsRoute> with HarbrLoadCallbackMixin {
     return ChangeNotifierProvider(
       create: (context) =>
           RadarrMovieDetailsState(context: context, movie: movie!),
-      builder: (context, _) => Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: _kGradientColors,
-          ),
-        ),
-        child: ListView(
-          controller: _scrollController,
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
-            bottom: HarbrTokens.space32,
-          ),
+      builder: (context, _) {
+        final posterUrl =
+            context.read<RadarrState>().getPosterURL(movie!.id);
+        return Stack(
           children: [
-            _headerButtons(context),
-            _heroSection(context),
-            _searchActions(context),
-            _overviewSection(),
-            _detailsSection(qualityProfile, tags),
-            _filesSection(context),
-            _historySection(context),
-            _castCrewSection(context),
-            _watchStatisticsSection(),
-            _recommendationsSection(),
+            // Blurred poster background
+            if (posterUrl != null && posterUrl.isNotEmpty)
+              Positioned.fill(
+                child: ClipRect(
+                  child: ImageFiltered(
+                    imageFilter:
+                        ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                    child: Transform.scale(
+                      scale: 1.1,
+                      child: Image.network(
+                        posterUrl,
+                        fit: BoxFit.cover,
+                        opacity: const AlwaysStoppedAnimation(0.3),
+                        errorBuilder: (_, __, ___) =>
+                            const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            // Gradient overlay
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: _kGradientColors,
+                ),
+              ),
+              child: ListView(
+                controller: _scrollController,
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top,
+                  bottom: HarbrTokens.space32,
+                ),
+                children: [
+                  _headerButtons(context),
+                  _heroSection(context),
+                  _searchActions(context),
+                  _overviewSection(),
+                  _detailsSection(qualityProfile, tags),
+                  _filesSection(context),
+                  _historySection(context),
+                  _castCrewSection(context),
+                  _watchStatisticsSection(),
+                  _recommendationsSection(),
+                ],
+              ),
+            ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -195,7 +225,7 @@ class _State extends State<MovieDetailsRoute> with HarbrLoadCallbackMixin {
   }) {
     return ClipOval(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+        filter: ui.ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
         child: GestureDetector(
           onTap: onTap,
           child: Container(
@@ -301,8 +331,8 @@ class _State extends State<MovieDetailsRoute> with HarbrLoadCallbackMixin {
                 if (movie!.studio != null && movie!.studio!.isNotEmpty)
                   movie!.studio!,
               ].join(' \u00B7 '),
-              style: const TextStyle(
-                color: Color(0xFFB0B0B0),
+              style: TextStyle(
+                color: harbr.onSurfaceDim,
                 fontSize: 15,
               ),
               textAlign: TextAlign.center,
@@ -329,104 +359,88 @@ class _State extends State<MovieDetailsRoute> with HarbrLoadCallbackMixin {
       alignment: WrapAlignment.center,
       children: [
         if (!(movie!.hasFile ?? false) && (movie!.monitored ?? false))
-          _largePillBadge(
-            icon: Icons.warning_amber_rounded,
-            label: 'Missing',
-            color: const Color(0xFFEF4444), // red-500
+          const HarbrStatusBadge(
+            type: StatusType.missing,
+            medium: true,
           ),
         if (movie!.hasFile ?? false)
-          _largePillBadge(
-            icon: Icons.check_circle_outline_rounded,
-            label: 'Downloaded',
-            color: const Color(0xFF3FB950), // green
+          const HarbrStatusBadge(
+            type: StatusType.downloaded,
+            medium: true,
           ),
         if (movie!.status == RadarrAvailability.ANNOUNCED)
-          _largePillBadge(
-            icon: Icons.schedule_rounded,
+          const HarbrStatusBadge(
+            type: StatusType.upcoming,
             label: 'Announced',
-            color: const Color(0xFF58A6FF), // info blue
+            medium: true,
           ),
         if (movie!.status == RadarrAvailability.IN_CINEMAS)
-          _largePillBadge(
-            icon: Icons.theaters_rounded,
+          const HarbrStatusBadge(
+            type: StatusType.upcoming,
             label: 'In Cinemas',
-            color: const Color(0xFF58A6FF),
+            medium: true,
           ),
       ],
     );
   }
 
-  /// Large pill badge matching Figma spec: px-6 py-3 rounded-2xl.
-  Widget _largePillBadge({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      decoration: BoxDecoration(
-        color: color == const Color(0xFFEF4444)
-            ? const Color(0xFFEF4444)
-            : const Color(0xFF3D3550),
-        borderRadius: HarbrTokens.borderRadiusXl,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white, size: 18),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+  /// Ratings grid — Figma: card with 3-column grid (IMDb, RT, TMDB).
+  Widget _ratingBadge() {
+    final rating = movie!.ratings!.value!;
+    final displayRating =
+        rating > 10 ? rating.toStringAsFixed(0) : rating.toStringAsFixed(1);
+
+    return Builder(
+      builder: (context) {
+        final harbr = context.harbr;
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: HarbrTokens.space16,
+            vertical: HarbrTokens.space12,
           ),
-        ],
-      ),
+          decoration: BoxDecoration(
+            color: harbr.surface0,
+            borderRadius: HarbrTokens.borderRadius12,
+            border: Border.all(color: harbr.border),
+          ),
+          child: Row(
+            children: [
+              // IMDb
+              Expanded(child: _ratingColumn('—', 'IMDb', harbr)),
+              // Rotten Tomatoes
+              Expanded(child: _ratingColumn('—', 'RT', harbr)),
+              // TMDB
+              Expanded(child: _ratingColumn(displayRating, 'TMDB', harbr)),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  /// Rating badge — Figma: px-8 py-4 bg-black/30 backdrop-blur rounded-2xl.
-  Widget _ratingBadge() {
-    final rating = movie!.ratings!.value!;
-    final displayRating = rating > 10 ? rating.toStringAsFixed(0) : rating.toStringAsFixed(1);
-    return ClipRRect(
-      borderRadius: HarbrTokens.borderRadiusXl,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16.0, sigmaY: 16.0),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.3),
-            borderRadius: HarbrTokens.borderRadiusXl,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                displayRating,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'TMDB',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 1.0,
-                ),
-              ),
-            ],
+  Widget _ratingColumn(String value, String label, HarbrThemeData harbr) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            color: harbr.onSurface,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            color: harbr.onSurfaceDim,
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1.0,
+          ),
+        ),
+      ],
     );
   }
 
@@ -499,28 +513,10 @@ class _State extends State<MovieDetailsRoute> with HarbrLoadCallbackMixin {
               const SizedBox(height: HarbrTokens.space12),
               Builder(
                 builder: (context) {
-                  return Wrap(
-                    spacing: HarbrTokens.space6,
-                    runSpacing: HarbrTokens.space4,
-                    children: genres
-                        .map(
-                          (g) => Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.1),
-                              borderRadius: HarbrTokens.borderRadiusPill,
-                            ),
-                            child: Text(
-                              g,
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.7),
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
+                  final harbr = context.harbr;
+                  return Text(
+                    genres.join(', '),
+                    style: TextStyle(color: harbr.accent, fontSize: 13),
                   );
                 },
               ),
@@ -535,7 +531,7 @@ class _State extends State<MovieDetailsRoute> with HarbrLoadCallbackMixin {
       RadarrQualityProfile? qualityProfile, List<RadarrTag> tags) {
     return HarbrCollapsibleSection(
       title: 'Details',
-      initiallyExpanded: false,
+      initiallyExpanded: true,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
           HarbrTokens.lg,
@@ -580,19 +576,21 @@ class _State extends State<MovieDetailsRoute> with HarbrLoadCallbackMixin {
     return HarbrCollapsibleSection(
       title: 'Watch Statistics',
       initiallyExpanded: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          HarbrTokens.lg,
-          0,
-          HarbrTokens.lg,
-          HarbrTokens.lg,
-        ),
-        child: Text(
-          'Connect Tautulli in Settings to view watch statistics for this movie.',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.5),
-            fontSize: 14,
-            height: 1.5,
+      child: Builder(
+        builder: (context) => Padding(
+          padding: const EdgeInsets.fromLTRB(
+            HarbrTokens.lg,
+            0,
+            HarbrTokens.lg,
+            HarbrTokens.lg,
+          ),
+          child: Text(
+            'Connect Tautulli in Settings to view watch statistics for this movie.',
+            style: TextStyle(
+              color: context.harbr.onSurfaceDim,
+              fontSize: 14,
+              height: 1.5,
+            ),
           ),
         ),
       ),
@@ -603,19 +601,21 @@ class _State extends State<MovieDetailsRoute> with HarbrLoadCallbackMixin {
     return HarbrCollapsibleSection(
       title: 'Recommendations',
       initiallyExpanded: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          HarbrTokens.lg,
-          0,
-          HarbrTokens.lg,
-          HarbrTokens.lg,
-        ),
-        child: Text(
-          'Connect Overseerr or Jellyseerr in Settings to view recommendations.',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.5),
-            fontSize: 14,
-            height: 1.5,
+      child: Builder(
+        builder: (context) => Padding(
+          padding: const EdgeInsets.fromLTRB(
+            HarbrTokens.lg,
+            0,
+            HarbrTokens.lg,
+            HarbrTokens.lg,
+          ),
+          child: Text(
+            'Connect Overseerr or Jellyseerr in Settings to view recommendations.',
+            style: TextStyle(
+              color: context.harbr.onSurfaceDim,
+              fontSize: 14,
+              height: 1.5,
+            ),
           ),
         ),
       ),
