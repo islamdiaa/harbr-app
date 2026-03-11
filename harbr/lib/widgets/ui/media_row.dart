@@ -78,8 +78,8 @@ class HarbrMediaRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: harbr.onSurface,
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               // Subtitle

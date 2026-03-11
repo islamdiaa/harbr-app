@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:harbr/widgets/ui/harbr_colors.dart';
 import 'package:harbr/widgets/ui/harbr_nav_rail.dart';
 import 'package:harbr/widgets/ui/theme_extension.dart';
 import 'package:harbr/widgets/ui/tokens.dart';
@@ -6,8 +8,9 @@ import 'package:harbr/widgets/ui/tokens.dart';
 /// A bottom navigation bar with pill-shaped active indicator.
 ///
 /// Replaces the standard Material [NavigationBar] in compact mode
-/// with a Helmarr-inspired design: the active tab shows an accent-colored
-/// pill containing the icon, while inactive tabs show dim icon + label.
+/// with a Figma-aligned design: the active tab shows a translucent
+/// purple pill with purple icon/label, while inactive tabs show dim
+/// icon + label. Background uses backdrop blur for depth.
 class HarbrPillNavBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
@@ -28,42 +31,50 @@ class HarbrPillNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final harbr = context.harbr;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: harbr.surface0,
-        border: Border(
-          top: BorderSide(color: harbr.border, width: 1),
-        ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: HarbrTokens.sm,
-            vertical: HarbrTokens.sm,
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 24.0, sigmaY: 24.0),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: HarbrColors.navBarBg,
+            border: Border(
+              top: BorderSide(
+                color: HarbrColors.navBarBorder,
+                width: 1,
+              ),
+            ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(destinations.length, (index) {
-              final dest = destinations[index];
-              final isSelected = index == selectedIndex;
-              final badgeCount = badgeCounts?[index];
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: HarbrTokens.sm,
+                vertical: HarbrTokens.sm,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(destinations.length, (index) {
+                  final dest = destinations[index];
+                  final isSelected = index == selectedIndex;
+                  final badgeCount = badgeCounts?[index];
 
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => onDestinationSelected(index),
-                  behavior: HitTestBehavior.opaque,
-                  child: _NavItem(
-                    icon: dest.icon,
-                    selectedIcon: dest.selectedIcon ?? dest.icon,
-                    label: dest.label,
-                    isSelected: isSelected,
-                    badgeCount: badgeCount,
-                    harbr: harbr,
-                  ),
-                ),
-              );
-            }),
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => onDestinationSelected(index),
+                      behavior: HitTestBehavior.opaque,
+                      child: _NavItem(
+                        icon: dest.icon,
+                        selectedIcon: dest.selectedIcon ?? dest.icon,
+                        label: dest.label,
+                        isSelected: isSelected,
+                        badgeCount: badgeCount,
+                        harbr: harbr,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
           ),
         ),
       ),
@@ -90,22 +101,19 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Figma Root.tsx: ALL tabs show icon + label.
-    // Active tab has accent-colored pill behind icon.
-    // Inactive tab has transparent background.
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         AnimatedContainer(
           duration: HarbrTokens.durationNormal,
-          padding: const EdgeInsets.all(HarbrTokens.sm),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
           decoration: BoxDecoration(
-            color: isSelected ? harbr.accent : Colors.transparent,
+            color: isSelected ? harbr.navActiveDim : Colors.transparent,
             borderRadius: HarbrTokens.borderRadius12,
           ),
           child: _buildIcon(
             isSelected ? selectedIcon : icon,
-            isSelected ? Colors.white : harbr.onSurfaceDim,
+            isSelected ? harbr.navActive : harbr.onSurfaceDim,
           ),
         ),
         const SizedBox(height: HarbrTokens.xs),
@@ -114,8 +122,8 @@ class _NavItem extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: isSelected ? harbr.onSurface : harbr.onSurfaceDim,
-            fontSize: 12,
+            color: isSelected ? harbr.navActive : harbr.onSurfaceDim,
+            fontSize: 11,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -124,7 +132,7 @@ class _NavItem extends StatelessWidget {
   }
 
   Widget _buildIcon(IconData iconData, Color color) {
-    Widget iconWidget = Icon(iconData, color: color, size: HarbrTokens.iconLg);
+    Widget iconWidget = Icon(iconData, color: color, size: HarbrTokens.iconMd);
 
     if (badgeCount != null && badgeCount! > 0) {
       iconWidget = Stack(
@@ -137,15 +145,15 @@ class _NavItem extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
               decoration: BoxDecoration(
-                color: harbr.danger,
+                color: harbr.accent, // orange badge
                 borderRadius: HarbrTokens.borderRadiusPill,
               ),
-              constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 badgeCount! > 99 ? '99+' : '$badgeCount',
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 9,
+                  fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
                 textAlign: TextAlign.center,

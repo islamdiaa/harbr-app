@@ -12,10 +12,9 @@ class HarbrBottomModalSheet<T> {
       context: HarbrState.context,
       expand: false,
       backgroundColor:
-          HarbrTheme.isAMOLEDTheme ? Colors.black : HarbrColours.primary,
-      shape: HarbrShapeBorder(
-        topOnly: true,
-        useBorder: HarbrUI.shouldUseBorder,
+          HarbrTheme.isAMOLEDTheme ? Colors.black : HarbrColors.surface0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: builder ?? this.builder as Widget Function(BuildContext),
       closeProgressThreshold: 0.90,

@@ -12,13 +12,13 @@ extension HarbrSnackbarTypeExtension on HarbrSnackbarType {
   Color get color {
     switch (this) {
       case HarbrSnackbarType.SUCCESS:
-        return HarbrColours.accent;
+        return HarbrColors.success;
       case HarbrSnackbarType.ERROR:
-        return HarbrColours.red;
+        return HarbrColors.danger;
       case HarbrSnackbarType.INFO:
-        return HarbrColours.blue;
+        return HarbrColors.info;
       default:
-        return HarbrColours.purple;
+        return HarbrColors.navActive;
     }
   }
 

@@ -194,6 +194,144 @@ class _ActivitiesPageState extends State<ActivitiesPage>
 
     return Column(
       children: [
+        // SafeArea top padding (no appbar)
+        SafeArea(bottom: false, child: const SizedBox(height: HarbrTokens.lg)),
+
+        // Header: "Activities" + active count badge
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: HarbrTokens.lg),
+          child: Row(
+            children: [
+              Text(
+                'Activities',
+                style: TextStyle(
+                  color: harbr.onSurface,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: HarbrTokens.sm),
+              FutureBuilder<List<_ActivityItem>>(
+                future: _queueFuture,
+                builder: (context, snapshot) {
+                  final count = snapshot.data?.length ?? 0;
+                  if (count == 0) return const SizedBox.shrink();
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: harbr.surface0,
+                      borderRadius: HarbrTokens.borderRadiusPill,
+                      border: Border.all(color: harbr.border),
+                    ),
+                    child: Text(
+                      '$count active',
+                      style: TextStyle(
+                        color: harbr.onSurfaceDim,
+                        fontSize: 12,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: HarbrTokens.lg),
+
+        // Queue summary card
+        FutureBuilder<List<_ActivityItem>>(
+          future: _queueFuture,
+          builder: (context, snapshot) {
+            final items = snapshot.data ?? [];
+            final downloading = items.where((i) => i.status == 'downloading').length;
+            final importing = items.where((i) => i.status == 'importing').length;
+            final complete = items.where((i) => i.status == 'completed').length;
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: HarbrTokens.lg),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: harbr.surface0,
+                  borderRadius: HarbrTokens.borderRadius12,
+                  border: Border.all(color: harbr.border),
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            '$downloading',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: HarbrColors.accent,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Downloading',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: harbr.onSurfaceDim,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            '$importing',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: HarbrColors.info,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Importing',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: harbr.onSurfaceDim,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            '$complete',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: HarbrColors.success,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Complete',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: harbr.onSurfaceDim,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: HarbrTokens.xl),
+
         HarbrFilterActionBar(
           leadingAction: HarbrFilterAction(
             icon: Icons.schedule_rounded,
@@ -322,10 +460,10 @@ class _ActivityCard extends StatelessWidget {
 
     return HarbrSurface(
       level: SurfaceLevel.base,
-      borderRadius: HarbrTokens.borderRadiusXxl,
+      borderRadius: HarbrTokens.borderRadius12,
       showBorder: true,
       margin: HarbrTokens.paddingCard,
-      padding: const EdgeInsets.all(HarbrTokens.space24),
+      padding: const EdgeInsets.all(HarbrTokens.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -414,7 +552,7 @@ class _ActivityCard extends StatelessWidget {
           // Progress bar (h-1 = 4px, bg-[#2d2540] track with orange fill)
           HarbrProgressBar(
             progress: item.progress,
-            height: 4,
+            height: 8,
             color: item.serviceColor,
           ),
 

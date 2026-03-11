@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:harbr/widgets/ui.dart';
 import 'package:harbr/system/logger.dart';
@@ -21,6 +22,7 @@ class _State extends State<CalendarPage>
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
   final _searchController = TextEditingController();
   String _searchQuery = '';
+  int _weekOffset = 0;
 
   @override
   bool get wantKeepAlive => true;
@@ -42,6 +44,134 @@ class _State extends State<CalendarPage>
     state.calendarType = state.calendarType == CalendarStartingType.CALENDAR
         ? CalendarStartingType.SCHEDULE
         : CalendarStartingType.CALENDAR;
+  }
+
+  /// Returns the Monday of the week containing [date].
+  DateTime _weekStart(DateTime date) {
+    final d = DateTime(date.year, date.month, date.day);
+    return d.subtract(Duration(days: d.weekday - 1)); // Monday = 1
+  }
+
+  /// Builds the week navigation bar with left/right chevrons and a label.
+  Widget _buildWeekNavBar(HarbrThemeData harbr) {
+    final now = DateTime.now();
+    final start = _weekStart(now).add(Duration(days: _weekOffset * 7));
+    final end = start.add(const Duration(days: 6));
+
+    final dayFmt = DateFormat('d MMM');
+    final yearFmt = DateFormat('yyyy');
+    final label = '${dayFmt.format(start)} - ${dayFmt.format(end)} ${yearFmt.format(end)}';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: harbr.surface0,
+        border: Border.all(color: harbr.border),
+        borderRadius: HarbrTokens.borderRadius12,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () => setState(() => _weekOffset--),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Icon(Icons.chevron_left_rounded, size: 20, color: harbr.onSurfaceDim),
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(fontSize: 13, color: harbr.onSurface),
+          ),
+          GestureDetector(
+            onTap: () => setState(() => _weekOffset++),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Icon(Icons.chevron_right_rounded, size: 20, color: harbr.onSurfaceDim),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the row of 7 day pills for the current week.
+  Widget _buildDayPills(
+    HarbrThemeData harbr,
+    Map<DateTime, List<CalendarData>> events,
+  ) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final weekStart = _weekStart(now).add(Duration(days: _weekOffset * 7));
+    final dayNameFmt = DateFormat('E'); // e.g. "Mon"
+
+    return Row(
+      children: List.generate(7, (i) {
+        final day = weekStart.add(Duration(days: i));
+        final dayNorm = DateTime(day.year, day.month, day.day);
+        final isToday = dayNorm == today;
+        final hasItems = events.keys.any((k) =>
+            k.year == dayNorm.year &&
+            k.month == dayNorm.month &&
+            k.day == dayNorm.day);
+
+        // Determine colors
+        final Color bg;
+        final Color textColor;
+        if (isToday) {
+          bg = harbr.accent;
+          textColor = Colors.white;
+        } else if (hasItems) {
+          bg = harbr.surface0;
+          textColor = harbr.onSurface;
+        } else {
+          bg = Colors.transparent;
+          textColor = harbr.onSurfaceDim;
+        }
+
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(left: i == 0 ? 0 : 6),
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 40),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: bg,
+                border: hasItems && !isToday
+                    ? Border.all(color: harbr.border)
+                    : null,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    dayNameFmt.format(day).substring(0, 3).toUpperCase(),
+                    style: TextStyle(fontSize: 10, color: textColor),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${day.day}',
+                    style: TextStyle(fontSize: 15, color: textColor),
+                  ),
+                  if (hasItems && !isToday) ...[
+                    const SizedBox(height: 2),
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: harbr.accent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    );
   }
 
   @override
@@ -68,9 +198,53 @@ class _State extends State<CalendarPage>
 
           if (snapshot.connectionState == ConnectionState.done &&
               snapshot.hasData) {
-            final events = snapshot.data!;
+            final allEvents = snapshot.data!;
+            final harbr = context.harbr;
+
+            // Filter events to the selected week
+            final now = DateTime.now();
+            final weekStart = _weekStart(now).add(Duration(days: _weekOffset * 7));
+            final weekEnd = weekStart.add(const Duration(days: 7));
+            final events = Map<DateTime, List<CalendarData>>.fromEntries(
+              allEvents.entries.where((e) =>
+                !e.key.isBefore(weekStart) && e.key.isBefore(weekEnd)),
+            );
             return Column(
               children: [
+                // SafeArea top padding (no appbar)
+                SafeArea(bottom: false, child: const SizedBox(height: HarbrTokens.lg)),
+
+                // Header: "Calendar"
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: HarbrTokens.lg),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Calendar',
+                      style: TextStyle(
+                        color: harbr.onSurface,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: HarbrTokens.lg),
+
+                // Week navigation bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: HarbrTokens.lg),
+                  child: _buildWeekNavBar(harbr),
+                ),
+                const SizedBox(height: 16),
+
+                // Day pills row
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: HarbrTokens.lg),
+                  child: _buildDayPills(harbr, events),
+                ),
+                const SizedBox(height: 20),
+
                 // Filter action bar
                 HarbrFilterActionBar(
                   leadingAction: HarbrFilterAction(

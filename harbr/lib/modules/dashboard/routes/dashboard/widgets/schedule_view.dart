@@ -163,7 +163,7 @@ class _TimelineMediaCard extends StatelessWidget {
         padding: const EdgeInsets.all(HarbrTokens.lg),
         decoration: BoxDecoration(
           color: harbr.surface0,
-          borderRadius: HarbrTokens.borderRadiusXxl,
+          borderRadius: HarbrTokens.borderRadius12,
           border: Border.all(color: harbr.border),
         ),
         child: Row(

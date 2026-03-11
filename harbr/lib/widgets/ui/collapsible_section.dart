@@ -1,13 +1,12 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:harbr/widgets/ui/theme_extension.dart';
 import 'package:harbr/widgets/ui/tokens.dart';
 
 /// An expandable/collapsible section with a chevron toggle.
 ///
-/// Container uses a glassmorphism background (black at 30% opacity with
-/// backdrop blur) and [HarbrTokens.borderRadiusXxl]. The header shows a
-/// title and a rotating chevron icon.
+/// Container uses a card-style background ([HarbrThemeData.surface0]) with
+/// border and [HarbrTokens.borderRadius12]. The header shows a title and
+/// a rotating chevron icon.
 class HarbrCollapsibleSection extends StatefulWidget {
   final String title;
   final bool initiallyExpanded;
@@ -77,63 +76,59 @@ class _HarbrCollapsibleSectionState extends State<HarbrCollapsibleSection>
 
     return Padding(
       padding: HarbrTokens.paddingCard,
-      child: ClipRRect(
-        borderRadius: HarbrTokens.borderRadiusXxl,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16.0, sigmaY: 16.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.3),
-              borderRadius: HarbrTokens.borderRadiusXxl,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header
-                InkWell(
-                  onTap: _toggle,
-                  borderRadius: HarbrTokens.borderRadiusXxl,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: HarbrTokens.lg,
-                      vertical: HarbrTokens.md,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            widget.title,
-                            style: TextStyle(
-                              color: harbr.onSurface,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        if (widget.headerTrailing != null) ...[
-                          widget.headerTrailing!,
-                          const SizedBox(width: HarbrTokens.sm),
-                        ],
-                        RotationTransition(
-                          turns: _rotationAnimation,
-                          child: Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            color: harbr.onSurfaceDim,
-                            size: HarbrTokens.iconLg,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: harbr.surface0,
+          borderRadius: HarbrTokens.borderRadius12,
+          border: Border.all(color: harbr.border),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            InkWell(
+              onTap: _toggle,
+              borderRadius: HarbrTokens.borderRadius12,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: HarbrTokens.lg,
+                  vertical: HarbrTokens.md,
                 ),
-                // Collapsible content
-                SizeTransition(
-                  sizeFactor: _sizeAnimation,
-                  child: widget.child,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        style: TextStyle(
+                          color: harbr.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    if (widget.headerTrailing != null) ...[
+                      widget.headerTrailing!,
+                      const SizedBox(width: HarbrTokens.sm),
+                    ],
+                    RotationTransition(
+                      turns: _rotationAnimation,
+                      child: Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: harbr.onSurfaceDim,
+                        size: HarbrTokens.iconLg,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            // Collapsible content
+            SizeTransition(
+              sizeFactor: _sizeAnimation,
+              child: widget.child,
+            ),
+          ],
         ),
       ),
     );

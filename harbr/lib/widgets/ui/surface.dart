@@ -67,7 +67,7 @@ class HarbrSurface extends StatelessWidget {
   });
 
   BorderRadius get _borderRadius =>
-      borderRadius ?? HarbrTokens.borderRadiusMd;
+      borderRadius ?? HarbrTokens.borderRadius12;
 
   EdgeInsets get _margin => margin ?? HarbrTokens.paddingCard;
 
