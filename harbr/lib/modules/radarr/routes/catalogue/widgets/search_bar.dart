@@ -15,7 +15,7 @@ class RadarrCatalogueSearchBar extends StatefulWidget
   }) : super(key: key);
 
   @override
-  Size get preferredSize => const Size.fromHeight(100);
+  Size get preferredSize => const Size.fromHeight(116);
 
   @override
   State<RadarrCatalogueSearchBar> createState() => _State();

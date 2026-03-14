@@ -50,7 +50,7 @@ class _State extends State<RadarrCatalogueRoute>
       child: RadarrCatalogueSearchBar(
         scrollController: RadarrNavigationBar.scrollControllers[0],
       ),
-      height: 100,
+      height: 116,
     );
   }
 

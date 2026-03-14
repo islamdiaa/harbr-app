@@ -252,7 +252,7 @@ class _MembershipCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'HELMARR',
+                  'HARBR',
                   style: TextStyle(
                     color: harbr.onSurface,
                     fontSize: 14,
@@ -268,18 +268,19 @@ class _MembershipCard extends StatelessWidget {
               ],
             ),
           ),
-          // Upgrade pill button
+          // Free badge
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: harbr.accent,
+              color: harbr.success.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
-              'Upgrade',
+            child: Text(
+              'Free',
               style: TextStyle(
-                color: Colors.white,
+                color: harbr.success,
                 fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),

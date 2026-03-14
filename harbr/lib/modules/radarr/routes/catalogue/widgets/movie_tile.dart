@@ -9,7 +9,7 @@ enum _RadarrCatalogueTileType {
 }
 
 class RadarrCatalogueTile extends StatefulWidget {
-  static const double itemExtent = 160.0;
+  static const double itemExtent = 180.0;
 
   final RadarrMovie movie;
   final RadarrQualityProfile? profile;
@@ -99,7 +99,7 @@ class _State extends State<RadarrCatalogueTile> {
                   const SizedBox(height: 4),
                   Text(
                     widget.movie.overview!,
-                    maxLines: 3,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: context.harbr.onSurfaceDim,
